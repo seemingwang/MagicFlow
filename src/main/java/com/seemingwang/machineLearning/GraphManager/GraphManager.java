@@ -28,7 +28,17 @@ public class GraphManager {
         return res;
     }
     public List<FlowNode> exeSeq;
-    public int size;
+
+    public int getBatchSize() {
+        return batchSize;
+    }
+
+    public GraphManager setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
+        return this;
+    }
+
+    public int batchSize;
 
     public Optimizer getOptimizer() {
         return optimizer;
@@ -64,22 +74,22 @@ public class GraphManager {
     public DataInitializer initializer;
     public boolean initDone;
     public void feed(Map<String,Map<FlowNode,List>> m) throws Exception {
-        size = 0;
+        batchSize = 0;
         Map<FlowNode,List> placeHolder = m.get("placeholder"), label = m.get("label");
 
         for(FlowNode c:placeHolder.keySet()){
             c.setData(changeToMatrixList(placeHolder.get(c)));
-            if(size == 0)
-                size = c.getData().size();
-            else if(size != c.getData().size()){
+            if(batchSize == 0)
+                batchSize = c.getData().size();
+            else if(batchSize != c.getData().size()){
                 throw new Exception("data size varies");
             }
         }
         for(FlowNode c:label.keySet()){
             c.setData(label.get(c));
-            if(size == 0)
-                size = c.getData().size();
-            else if(size != c.getData().size()){
+            if(batchSize == 0)
+                batchSize = c.getData().size();
+            else if(batchSize != c.getData().size()){
                 throw new Exception("data size varies");
             }
         }
@@ -108,9 +118,9 @@ public class GraphManager {
         }
         for(FlowNode c:exeSeq){
             if(c.getOp() != null)
-                c.getOp().forward(c,size);
+                c.getOp().forward(c);
         }
-        optimizer.run(optimizeNode,size);
+        optimizer.run(optimizeNode);
     }
 
     public double getCost(){

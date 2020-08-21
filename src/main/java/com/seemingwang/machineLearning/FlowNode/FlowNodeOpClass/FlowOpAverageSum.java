@@ -13,7 +13,7 @@ import java.util.List;
 public class FlowOpAverageSum implements FlowOp<Double> {
     public static FlowOpAverageSum instance = new FlowOpAverageSum();
     @Override
-    public void forward(FlowNode<Double> f, int size) {
+    public void forward(FlowNode<Double> f) {
         if(f.getData().size() == 0){
             f.getData().add(0.0);
         }

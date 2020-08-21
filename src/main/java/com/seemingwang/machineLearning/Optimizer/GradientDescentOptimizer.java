@@ -21,9 +21,9 @@ public class GradientDescentOptimizer extends Optimizer{
 
     Map<FlowNode,List<FlowNode>> seqMap;
     @Override
-    public void run(ScalaFlowNode node,int size) {
+    public void run(ScalaFlowNode node) {
         List<FlowNode> seq = seqMap.get(node);
-        if (seq == null || seq.size() == 0 || size == 0){
+        if (seq == null || seq.size() == 0){
             try {
                 seq = Sequential.arrange(false, node);
                 seqMap.put(node,seq);

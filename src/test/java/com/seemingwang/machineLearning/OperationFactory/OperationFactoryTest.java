@@ -31,7 +31,7 @@ public class OperationFactoryTest {
         fn.setData(Arrays.asList(f));
         fn1.setData(Arrays.asList(f1));
         FullMatrixFlowNode e = (FullMatrixFlowNode)OperationFactory.add(fn, fn1);
-        e.getOp().forward(e,1);
+        e.getOp().forward(e);
         Assert.assertEquals(e.getData().get(0),ans);
     }
 
@@ -44,10 +44,10 @@ public class OperationFactoryTest {
         f.set(0,0,1.2);
         b.setData(Arrays.asList(f));
         FlowNode c = OperationFactory.add(a, b);
-        c.getOp().forward(c,1);
+        c.getOp().forward(c);
         Assert.assertEquals(c.getData().get(0),2.2);
         FlowNode d = OperationFactory.add(b,a);
-        d.getOp().forward(d,1);
+        d.getOp().forward(d);
         Assert.assertEquals(d.getData().get(0),2.2);
     }
 
@@ -58,7 +58,7 @@ public class OperationFactoryTest {
         f1.setData(Arrays.asList(new FullMatrix(mat1)));
         f2.setData(Arrays.asList(new FullMatrix(mat2)));
         FullMatrixFlowNode f3 = (FullMatrixFlowNode)OperationFactory.Multiply(f1,f2);
-        f3.getOp().forward(f3,1);
+        f3.getOp().forward(f3);
         double [][] dev = {{1,2,2},{3,1,1}},dev1 = {{14,12},{12,21}},dev2 = {{10,5,5},{14,8,8}};
         FullMatrix devM = new FullMatrix(dev),dev1M = new FullMatrix(dev1), dev2M = new FullMatrix(dev2);
         List<List<MatrixTypeDevDescriber>> l = f3.getOp().backward(f3,Arrays.asList(devM));

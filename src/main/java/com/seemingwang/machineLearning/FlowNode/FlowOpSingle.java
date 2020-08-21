@@ -9,8 +9,9 @@ public abstract class FlowOpSingle<T,L> implements FlowOp<T> {
     public abstract T cal(L input);
     public abstract List<DerivativeDescriber> calDev(T dev, L input);
     @Override
-    public void forward(FlowNode<T> f,int size){
+    public void forward(FlowNode<T> f){
         if(!f.getChildren().isEmpty()) {
+            int size = f.getChildren().get(0).getData().size();
             List<T> l = f.getData() == null ? new ArrayList<>():f.getData();
             if(l.size() == 0){
                 for(int i = 0;i < size;i++)

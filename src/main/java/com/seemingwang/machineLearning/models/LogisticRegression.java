@@ -10,6 +10,9 @@ import com.seemingwang.machineLearning.GraphManager.GraphManager;
 import com.seemingwang.machineLearning.Matrix.FullMatrix;
 import com.seemingwang.machineLearning.OperationFactory.OperationFactory;
 import com.seemingwang.machineLearning.Optimizer.GradientDescentOptimizer;
+import com.seemingwang.machineLearning.Regularizer.L1WeightDecayNode;
+import com.seemingwang.machineLearning.Regularizer.L2WeightDecayNode;
+import com.seemingwang.machineLearning.Regularizer.WeightDecay;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 public class LogisticRegression {
-    public LogisticRegression(int dimension) {
+    public LogisticRegression(int dimension, WeightDecay w) {
         this.dimension = dimension;
         gm = new GraphManager().setInitializer(new AveDataInitializer()).setOptimizer(new GradientDescentOptimizer(0.1));
         this.input = new FullMatrixFlowNode(1,dimension);
@@ -32,7 +35,18 @@ public class LogisticRegression {
             FlowNode averageSum = OperationFactory.averageSum(diffSquare);
             diffSquare.setName("diffSquare");
             averageSum.setName("averageSum");
-            gm.setOptimizeNode((ScalaFlowNode)averageSum);
+            if(w == null) {
+                gm.setOptimizeNode((ScalaFlowNode) averageSum);
+            } else {
+                FlowNode decay;
+                if(w.equals(WeightDecay.L2)){
+                    decay = L2WeightDecayNode.makeRegularizationNode((ScalaFlowNode) averageSum,0.001);
+                } else {
+                    decay = L1WeightDecayNode.makeRegularizationNode((ScalaFlowNode) averageSum,0.001);
+                }
+                decay.setName("decay");
+                gm.setOptimizeNode((ScalaFlowNode) OperationFactory.add(decay ,averageSum));
+            }
             this.label = label;
 
         } catch (Exception e) {

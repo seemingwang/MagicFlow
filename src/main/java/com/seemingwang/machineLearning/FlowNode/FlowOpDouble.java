@@ -10,8 +10,9 @@ public abstract class FlowOpDouble<T,L,R> implements FlowOp<T> {
     public abstract List<DerivativeDescriber> calDev(T dev,L input0, R input1);
 
     @Override
-    public void forward(FlowNode<T> f,int size){
+    public void forward(FlowNode<T> f){
         if(!f.getChildren().isEmpty() && f.getChildren().size() >= 2) {
+            int size = Math.max(f.getChildren().get(0).getData().size(),f.getChildren().get(1).getData().size());
             List<T> l = f.getData() == null ? new ArrayList<>():f.getData();
             if(l.size() == 0){
                 for(int i =0;i < size;i++)

@@ -33,8 +33,9 @@ public class OperationFactory {
                 c.setOp(new FlowOp<Double>(){
 
                     @Override
-                    public void forward(FlowNode<Double> f,int size) {
+                    public void forward(FlowNode<Double> f) {
                         try {
+                            int size = Math.max(f.getChildren().get(0).getData().size(),f.getChildren().get(1).getData().size());
                             List<Double> l = f.getData() == null ? new ArrayList<>():f.getData();
                             if(l.size() == 0){
                                 for(int i =0;i < size;i++)
@@ -108,7 +109,8 @@ public class OperationFactory {
                 c.setOp(new FlowOp<Double>(){
 
                     @Override
-                    public void forward(FlowNode<Double> f,int size) {
+                    public void forward(FlowNode<Double> f) {
+                        int size = Math.max(f.getChildren().get(0).getData().size(),f.getChildren().get(1).getData().size());
                         try {
                             List<Double> l = f.getData() == null ? new ArrayList<>():f.getData();
                             if(l.size() == 0){
@@ -187,7 +189,8 @@ public class OperationFactory {
                 c.setOp(new FlowOp<Double>(){
 
                     @Override
-                    public void forward(FlowNode<Double> f,int size) {
+                    public void forward(FlowNode<Double> f) {
+                        int size = Math.max(f.getChildren().get(0).getData().size(),f.getChildren().get(1).getData().size());
                         try {
                             List<Double> l = f.getData() == null ? new ArrayList<>():f.getData();
                             if(l.size() == 0){
@@ -242,7 +245,8 @@ public class OperationFactory {
                 c.setOp(new FlowOp<Double>(){
 
                     @Override
-                    public void forward(FlowNode<Double> f,int size) {
+                    public void forward(FlowNode<Double> f) {
+                        int size = Math.max(f.getChildren().get(0).getData().size(),f.getChildren().get(1).getData().size());
                         try {
                             List<Double> l = f.getData() == null ? new ArrayList<>():f.getData();
                             if(l.size() == 0){

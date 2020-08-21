@@ -17,7 +17,7 @@ public class FlowOpSingleParamMultiplyForDoubleType extends FlowOpDouble<Double,
 
     @Override
     public List<DerivativeDescriber> calDev(Double dev, Double input0, Double input1) {
-        return Arrays.asList(new DoubleTypeDevDescriber(input1),new DoubleTypeDevDescriber(input0));
+        return Arrays.asList(new DoubleTypeDevDescriber(input1 * dev),new DoubleTypeDevDescriber(input0 * dev));
     }
 }
 

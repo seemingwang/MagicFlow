@@ -4,5 +4,5 @@ import com.seemingwang.machineLearning.FlowNode.ScalaFlowNode;
 
 public abstract class Optimizer {
 
-    public abstract void run(ScalaFlowNode node,int size);
+    public abstract void run(ScalaFlowNode node);
 }

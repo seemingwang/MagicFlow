@@ -12,7 +12,7 @@ public class LogisticRegressionTest {
         return new Random().nextDouble() * range - range/2;
     }
 
-    public double sigmod(double x){
+    public double sigmoid(double x){
         return Math.exp(x)/(1 + Math.exp(x));
     }
     @Test
@@ -35,13 +35,13 @@ public class LogisticRegressionTest {
             }
             tot += bias;
             input.add(in);
-            label.add(sigmod(tot));
+            label.add(sigmoid(tot));
         }
         lr.prepare(input,label);
         lr.train();
         List<Double> trainedWeight = lr.exportWeight();
         Double trainBias = lr.exportBias();
-        Assert.assertEquals(trainBias,bias,0.01);
+        Assert.assertEquals(trainBias,bias,0.05);
         for(int i = 0;i < dimension;i++)
             Assert.assertEquals(w.get(i),trainedWeight.get(i),0.05);
 //        double t = 0, t1 = 0;

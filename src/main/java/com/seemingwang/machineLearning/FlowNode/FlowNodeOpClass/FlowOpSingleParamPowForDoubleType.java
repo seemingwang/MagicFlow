@@ -12,7 +12,7 @@ public class FlowOpSingleParamPowForDoubleType extends FlowOpSingle<Double,Doubl
     public static FlowOpSingleParamPowForDoubleType square = new FlowOpSingleParamPowForDoubleType(2);
     public double param;
 
-    public FlowOpSingleParamPowForDoubleType(int param) {
+    public FlowOpSingleParamPowForDoubleType(double param) {
         this.param = param;
     }
 

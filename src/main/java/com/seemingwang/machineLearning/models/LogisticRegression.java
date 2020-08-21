@@ -2,6 +2,8 @@ package com.seemingwang.machineLearning.models;
 
 import com.seemingwang.machineLearning.DataInitializer.AveDataInitializer;
 import com.seemingwang.machineLearning.FlowNode.FlowNode;
+import com.seemingwang.machineLearning.FlowNode.FlowNodeBuilder.FullMatrixFlowNodeBuilder;
+import com.seemingwang.machineLearning.FlowNode.FlowNodeBuilder.ScalaFlowNodeBuilder;
 import com.seemingwang.machineLearning.FlowNode.FullMatrixFlowNode;
 import com.seemingwang.machineLearning.FlowNode.ScalaFlowNode;
 import com.seemingwang.machineLearning.GraphManager.GraphManager;
@@ -17,21 +19,21 @@ import java.util.Map;
 public class LogisticRegression {
     public LogisticRegression(int dimension) {
         this.dimension = dimension;
-        gm = new GraphManager().setInitializer(new AveDataInitializer()).setOptimizer(new GradientDescentOptimizer(0.01));
-        FullMatrixFlowNode input = new FullMatrixFlowNode(1,dimension),weight = new FullMatrixFlowNode(dimension,1);
-        weight.setTrainable(true);
+        gm = new GraphManager().setInitializer(new AveDataInitializer()).setOptimizer(new GradientDescentOptimizer(0.1));
+        this.input = new FullMatrixFlowNode(1,dimension);
+        this.weight = new FullMatrixFlowNodeBuilder(dimension,1).setTrainable(true).setName("weight").build();
         try {
             FlowNode out =  OperationFactory.Multiply(input,weight);
-            FlowNode bias = new ScalaFlowNode();
-            bias.setTrainable(true);
-            FlowNode result = OperationFactory.sigmoid(OperationFactory.add(out,bias));
-            FlowNode label = new ScalaFlowNode();
+            this.bias = new ScalaFlowNodeBuilder().setTrainable(true).setName("bias").build();
+            FlowNode result = OperationFactory.sigmoid(OperationFactory.add(out,this.bias));
+            result.setName("result");
+            FlowNode label = new ScalaFlowNodeBuilder().setName("label").build();
             FlowNode diffSquare = OperationFactory.pow(OperationFactory.subtract(result,label),2);
-            gm.setOptimizeNode((ScalaFlowNode)diffSquare);
+            FlowNode averageSum = OperationFactory.averageSum(diffSquare);
+            diffSquare.setName("diffSquare");
+            averageSum.setName("averageSum");
+            gm.setOptimizeNode((ScalaFlowNode)averageSum);
             this.label = label;
-            this.input = input;
-            this.weight = weight;
-            this.bias = bias;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -57,10 +59,10 @@ public class LogisticRegression {
 
     }
     public void train(){
-        for(int i = 0;i < 10000;i++){
+        for(int i = 0;i < 50000;i++){
             gm.run();
-            if(i % 10 == 0){
-                System.out.println("for step " + i + " cost is " + gm.getOptimizer().calCost(gm.optimizeNode));
+            if(i % 100 == 0){
+                System.out.println("for step " + i + " cost is " + gm.getCost());
             }
         }
     }

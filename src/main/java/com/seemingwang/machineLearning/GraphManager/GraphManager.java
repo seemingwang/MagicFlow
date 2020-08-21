@@ -113,4 +113,8 @@ public class GraphManager {
         optimizer.run(optimizeNode,size);
     }
 
+    public double getCost(){
+        return optimizeNode.getData().get(0);
+    }
+
 }

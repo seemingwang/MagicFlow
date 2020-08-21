@@ -43,7 +43,7 @@ public class LogisticRegressionTest {
         Double trainBias = lr.exportBias();
         Assert.assertEquals(trainBias,bias,0.01);
         for(int i = 0;i < dimension;i++)
-            Assert.assertEquals(w.get(i),trainedWeight.get(i),0.01);
+            Assert.assertEquals(w.get(i),trainedWeight.get(i),0.03);
 //        double t = 0, t1 = 0;
 //        for(int i = 0;i < dimension;i++){
 //            t += w.get(i) * input.get(0).get(i);

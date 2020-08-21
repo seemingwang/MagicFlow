@@ -32,8 +32,7 @@ public class GradientDescentOptimizer extends Optimizer{
             }
         }
         List<DerivativeDescriber> l = new ArrayList<>();
-        for(int i = 0;i < size;i++)
-            l.add(new DoubleTypeDevDescriber(1.0));
+        l.add(new DoubleTypeDevDescriber(1.0));
         Map<FlowNode,List<DerivativeDescriber>> m = new HashMap<>();
         m.put(node,l);
         for(FlowNode c: seq){
@@ -44,22 +43,27 @@ public class GradientDescentOptimizer extends Optimizer{
                 for(int i = 0;i < c.getChildren().size();i++){
                     FlowNode x = (FlowNode)c.getChildren().get(i);
                     List<DerivativeDescriber> l3 = m.get(x);
+                    List<DerivativeDescriber> l2copy = l2.get(i);
+                    if(x.isTrainable() && l2copy.size() > 1){
+                        DerivativeDescriber one = l2copy.get(0);
+                        for(int k = 1; k < l2copy.size();k++){
+                            one = one.combine(l2copy.get(k));
+                        }
+                        l2copy.clear();
+                        l2copy.add(one);
+                    }
                     if(l3 == null){
-                        m.put(x,l2.get(i));
+                        m.put(x,l2copy);
                     } else {
-                        for(int j = 0;j < size;j++){
-                            l3.set(j,l3.get(j).combine(l2.get(i).get(j)));
+                        for(int j = 0;j < l2copy.size();j++){
+                            l3.set(j,l3.get(j).combine(l2copy.get(j)));
                         }
                     }
 
                 }
             }
             if(c.isTrainable()){
-                DerivativeDescriber d = dl.get(0);
-                for(int i = 1; i < size;i++){
-                    d = d.combine(dl.get(i));
-                }
-                c.updateDev(d.export(),learningRate);
+                c.updateDev(dl.get(0).export(),learningRate);
             }
         }
 
@@ -68,11 +72,4 @@ public class GradientDescentOptimizer extends Optimizer{
 
     }
 
-    @Override
-    public double calCost(ScalaFlowNode node) {
-        double cost = 0;
-        for(Double d: node.getData())
-            cost += d;
-        return cost;
-    }
 }

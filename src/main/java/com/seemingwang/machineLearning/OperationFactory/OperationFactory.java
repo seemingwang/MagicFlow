@@ -309,8 +309,18 @@ public class OperationFactory {
     static public FlowNode pow(FlowNode a, double s){
         if(a instanceof ScalaFlowNode){
             ScalaFlowNode d = new ScalaFlowNode();
-            singleTypeScalaFactory.func1(a,d, new FlowOpSingleParamPowForDoubleType(2));
+            singleTypeScalaFactory.func1(a,d, new FlowOpSingleParamPowForDoubleType(s));
             return d;
+        }
+        return null;
+    }
+
+    static public FlowNode averageSum(FlowNode a){
+        if(a instanceof ScalaFlowNode){
+            ScalaFlowNode res = new ScalaFlowNode();
+            res.setChildren(Arrays.asList(a));
+            res.setOp(FlowOpAverageSum.instance);
+            return res;
         }
         return null;
     }

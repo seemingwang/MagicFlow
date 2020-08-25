@@ -30,7 +30,7 @@ public class L2WeightDecayNodeTest {
 //            out.setName("out");
             FlowNode decay = L2WeightDecayNode.makeRegularizationNode((ScalaFlowNode)out,1.0);
             FlowNode sum = OperationFactory.add(out,decay);
-            GraphManager gm = new GraphManager().setOptimizer(new GradientDescentOptimizer(0.01)).setInitializer(new AveDataInitializer());
+            GraphManager gm = new GraphManager().setOptimizer(new GradientDescentOptimizer(0.01)).setInitializer(new AveDataInitializer(-3,3));
             gm.setOptimizeNode((ScalaFlowNode) sum);
             const2.setData(Arrays.asList(4.0,2.0,3.0));
             const3.setData(Arrays.asList(4.0,5.0,8.0));

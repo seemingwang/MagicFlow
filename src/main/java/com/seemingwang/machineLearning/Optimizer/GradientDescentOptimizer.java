@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class GradientDescentOptimizer extends Optimizer{
-    double learningRate;
     public GradientDescentOptimizer(double learningRate) {
         this.learningRate = learningRate;
         seqMap = new HashMap<FlowNode, List<FlowNode>>();

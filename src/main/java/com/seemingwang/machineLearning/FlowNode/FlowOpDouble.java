@@ -14,7 +14,8 @@ public abstract class FlowOpDouble<T,L,R> implements FlowOp<T> {
         if(!f.getChildren().isEmpty() && f.getChildren().size() >= 2) {
             int size = Math.max(f.getChildren().get(0).getData().size(),f.getChildren().get(1).getData().size());
             List<T> l = f.getData() == null ? new ArrayList<>():f.getData();
-            if(l.size() == 0){
+            if(l.size() != size){
+                l.clear();
                 for(int i =0;i < size;i++)
                     l.add(null);
             }

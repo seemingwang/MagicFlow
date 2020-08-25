@@ -13,8 +13,9 @@ public abstract class FlowOpSingle<T,L> implements FlowOp<T> {
         if(!f.getChildren().isEmpty()) {
             int size = f.getChildren().get(0).getData().size();
             List<T> l = f.getData() == null ? new ArrayList<>():f.getData();
-            if(l.size() == 0){
-                for(int i = 0;i < size;i++)
+            if(l.size() != size){
+                l.clear();
+                for(int i =0;i < size;i++)
                     l.add(null);
             }
             for(int i = 0;i < size;i++)

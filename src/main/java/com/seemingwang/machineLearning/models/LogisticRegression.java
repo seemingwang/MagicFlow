@@ -4,7 +4,6 @@ import com.seemingwang.machineLearning.DataInitializer.AveDataInitializer;
 import com.seemingwang.machineLearning.FlowNode.FlowNode;
 import com.seemingwang.machineLearning.FlowNode.FlowNodeBuilder.FullMatrixFlowNodeBuilder;
 import com.seemingwang.machineLearning.FlowNode.FlowNodeBuilder.ScalaFlowNodeBuilder;
-import com.seemingwang.machineLearning.FlowNode.FullMatrixFlowNode;
 import com.seemingwang.machineLearning.FlowNode.ScalaFlowNode;
 import com.seemingwang.machineLearning.GraphManager.GraphManager;
 import com.seemingwang.machineLearning.Matrix.FullMatrix;
@@ -12,23 +11,20 @@ import com.seemingwang.machineLearning.OperationFactory.OperationFactory;
 import com.seemingwang.machineLearning.Optimizer.GradientDescentOptimizer;
 import com.seemingwang.machineLearning.Regularizer.L1WeightDecayNode;
 import com.seemingwang.machineLearning.Regularizer.L2WeightDecayNode;
-import com.seemingwang.machineLearning.Regularizer.WeightDecay;
+import com.seemingwang.machineLearning.Utils.Structure.WeightDecay;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class LogisticRegression {
     public LogisticRegression(int dimension, WeightDecay w) {
         this.dimension = dimension;
-        gm = new GraphManager().setInitializer(new AveDataInitializer()).setOptimizer(new GradientDescentOptimizer(0.1));
-        this.input = new FullMatrixFlowNode(1,dimension);
+        gm = new GraphManager().setInitializer(new AveDataInitializer(-3,3)).setOptimizer(new GradientDescentOptimizer(0.1));
+        this.input = new FullMatrixFlowNodeBuilder(1,dimension).setName("input").build();
         this.weight = new FullMatrixFlowNodeBuilder(dimension,1).setTrainable(true).setName("weight").build();
         try {
             FlowNode out =  OperationFactory.Multiply(input,weight);
             this.bias = new ScalaFlowNodeBuilder().setTrainable(true).setName("bias").build();
-            FlowNode result = OperationFactory.sigmoid(OperationFactory.add(out,this.bias));
+            this.result = OperationFactory.sigmoid(OperationFactory.add(out,this.bias));
             result.setName("result");
             FlowNode label = new ScalaFlowNodeBuilder().setName("label").build();
             FlowNode diffSquare = OperationFactory.pow(OperationFactory.subtract(result,label),2);
@@ -54,23 +50,18 @@ public class LogisticRegression {
         }
     }
 
-    FlowNode input,label,weight,bias;
+    FlowNode input,label,weight,bias,result;
     public int dimension;
     GraphManager gm;
     public void prepare(List<List<Double>> data, List<Double> dataLabel){
-        Map<String,Map<FlowNode,List>> m = new HashMap<>();
-        Map<FlowNode,List> p = new HashMap<>(), l = new HashMap<>();
-        p.put(input,data);
-        l.put(label,dataLabel);
-        m.put("placeholder",p);
-        m.put("label",l);
+        Map<FlowNode,List> p = new HashMap<>();
+        p.put(input,gm.changeToMatrixList(data));
+        p.put(label,dataLabel);
         try {
-            gm.feed(m);
+            gm.feed(p);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
     public void train(){
         for(int i = 0;i < 50000;i++){
@@ -93,4 +84,9 @@ public class LogisticRegression {
         return (Double)bias.getData().get(0);
     }
 
+    public Double Predict(List<Double> in){
+        input.setData(gm.changeToMatrixList(Arrays.asList(in)));
+        gm.run(result);
+        return (Double)result.getData().get(0);
+    }
 }

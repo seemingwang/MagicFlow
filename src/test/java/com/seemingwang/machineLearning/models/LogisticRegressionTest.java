@@ -44,6 +44,11 @@ public class LogisticRegressionTest {
         Assert.assertEquals(trainBias,bias,0.05);
         for(int i = 0;i < dimension;i++)
             Assert.assertEquals(w.get(i),trainedWeight.get(i),0.05);
+
+        for(int i = 0;i < input.size();i++){
+            System.out.println("label " + label.get(i));
+            System.out.println(lr.Predict(input.get(i)));
+        }
 //        double t = 0, t1 = 0;
 //        for(int i = 0;i < dimension;i++){
 //            t += w.get(i) * input.get(0).get(i);

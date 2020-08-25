@@ -13,14 +13,14 @@ import java.util.Map;
 
 public class GraphManager {
 
-    FullMatrix changeToMatrix(List<Double> t){
+    static public FullMatrix changeToMatrix(List<Double> t){
         int size = t.size();
         FullMatrix f = new FullMatrix(1,size);
         for(int i = 0;i < size;i++)
             f.set(0,i,t.get(i));
         return f;
     }
-    List<FullMatrix> changeToMatrixList(List<List<Double>> l){
+    static public List<FullMatrix> changeToMatrixList(List<List<Double>> l){
         List<FullMatrix> res = new ArrayList<>();
         for(List<Double> c:l){
             res.add(changeToMatrix(c));
@@ -73,20 +73,12 @@ public class GraphManager {
 
     public DataInitializer initializer;
     public boolean initDone;
-    public void feed(Map<String,Map<FlowNode,List>> m) throws Exception {
+    public void feed(Map<FlowNode,List> m) throws Exception {
         batchSize = 0;
-        Map<FlowNode,List> placeHolder = m.get("placeholder"), label = m.get("label");
 
-        for(FlowNode c:placeHolder.keySet()){
-            c.setData(changeToMatrixList(placeHolder.get(c)));
-            if(batchSize == 0)
-                batchSize = c.getData().size();
-            else if(batchSize != c.getData().size()){
-                throw new Exception("data size varies");
-            }
-        }
-        for(FlowNode c:label.keySet()){
-            c.setData(label.get(c));
+        for(FlowNode c:m.keySet()){
+            List l = m.get(c);
+            c.setData(l);
             if(batchSize == 0)
                 batchSize = c.getData().size();
             else if(batchSize != c.getData().size()){
@@ -94,16 +86,14 @@ public class GraphManager {
             }
         }
     }
-    void initData() throws Exception {
+    public void initData() throws Exception {
         exeSeq = Sequential.arrange(true, optimizeNode);
         for(FlowNode c:exeSeq){
             if(c.isTrainable()){
                 initializer.initData(c);
             }
-            if((c.getChildren() == null || c.getChildren().size() == 0) && (c.getData()== null || c.getData().size() == 0)){
-                    throw new Exception("node " + c + "'s data is not initialized");
-            }
         }
+        initDone = true;
     }
 
     public void run(){
@@ -114,13 +104,21 @@ public class GraphManager {
                 e.printStackTrace();
                 return;
             }
-            initDone = true;
         }
         for(FlowNode c:exeSeq){
             if(c.getOp() != null)
                 c.getOp().forward(c);
         }
         optimizer.run(optimizeNode);
+    }
+
+    public void run(FlowNode x){
+        for(FlowNode c:exeSeq){
+            if(c.getOp() != null)
+                c.getOp().forward(c);
+            if(c == x)
+                return;
+        }
     }
 
     public double getCost(){

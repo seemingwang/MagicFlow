@@ -10,9 +10,14 @@ public class FullMatrix extends Matrix {
     }
 
     public FullMatrix(double [][]mat){
-        this.mat = mat;
         row = mat.length;
         column = mat[0].length;
+        this.mat = new double[row][column];
+        for(int i = 0;i < row;i++){
+            for(int j = 0;j < column;j++){
+                this.mat[i][j] = mat[i][j];
+            }
+        }
     }
 
     public double get(int x, int y) {

@@ -1,8 +1,9 @@
 package com.seemingwang.machineLearning.Component;
 
 import com.seemingwang.machineLearning.FlowNode.FlowNode;
-import com.seemingwang.machineLearning.FlowNode.FlowNodeBuilder.FullMatrixFlowNodeBuilder;
-import com.seemingwang.machineLearning.FlowNode.FlowOpSingle;
+import com.seemingwang.machineLearning.FlowNode.FlowNodeBuilder;
+import com.seemingwang.machineLearning.FlowNode.FlowNodeOpClass.FlowOpRelu;
+import com.seemingwang.machineLearning.FlowNode.FlowNodeOpClass.FlowOpSigmoid;
 import com.seemingwang.machineLearning.FlowNode.FlowOpSingleParam;
 import com.seemingwang.machineLearning.OperationFactory.OperationFactory;
 import com.seemingwang.machineLearning.Utils.Structure.Activator;
@@ -17,16 +18,16 @@ public class FullyConnectedLayerWithActivator {
 
     FlowNode makeFullyConnectedLayerWithActivator(int row, int column, FlowOpSingleParam instance, FlowNode input) {
         count++;
-        FullMatrixFlowNode weight = new FullMatrixFlowNodeBuilder(row, column).setTrainable(true).setName("weight" + count).build();
+        FlowNode weight = new FlowNodeBuilder().setShape(new Integer[]{row, column}).setTrainable(true).setName("weight" + count).build();
         try {
-            FullMatrixFlowNode mul = (FullMatrixFlowNode)OperationFactory.Multiply(input,weight);
+            FlowNode mul = OperationFactory.matMultiply(input,weight);
             mul.setName("mul" + count);
-            FullMatrixFlowNode f = (FullMatrixFlowNode) OperationFactory.add(mul,new FullMatrixFlowNodeBuilder(1,column).setTrainable(true).setName("bias" + count).build());
+            FlowNode f = OperationFactory.add(mul,new FlowNodeBuilder().setShape(new Integer[]{1,column}).setTrainable(true).setName("bias" + count).build());
             f.setName("linearOut" + count);
             if(instance != null) {
-                FullMatrixFlowNode w = new FullMatrixFlowNodeBuilder(1, column).build();
+                FlowNode w = new FlowNodeBuilder().setShape(new Integer[]{1,column}).build();
                 w.setName("activator" + count);
-                OperationFactory.singleTypeMatrixFactory.func1(f, w, instance);
+                instance.connect(f,w);
                 return w;
             } else
                 return f;
@@ -36,14 +37,14 @@ public class FullyConnectedLayerWithActivator {
         }
     }
 
-    public FullMatrixFlowNode makeFullyConnectedLayerWithActivator(MatrixFlowNode input, int row, int column, Activator a) {
-        FullMatrixFlowNode res;
+    public FlowNode makeFullyConnectedLayerWithActivator(FlowNode input, int row, int column, Activator a) {
+        FlowNode res;
         if(a == null)
-            return (FullMatrixFlowNode) makeFullyConnectedLayerWithActivator(row,column, null,input);
+            return  makeFullyConnectedLayerWithActivator(row,column, null,input);
         switch (a){
-            case sigmoid: res = (FullMatrixFlowNode) makeFullyConnectedLayerWithActivator(row,column,FlowOpSingleParamSigmoidForMatrixType.instance,input);break;
-            case relu:res = (FullMatrixFlowNode) makeFullyConnectedLayerWithActivator(row,column, FlowOpSingleParamReluForMatrixType.instance,input);break;
-            default:res = (FullMatrixFlowNode) makeFullyConnectedLayerWithActivator(row,column, null,input);break;
+            case sigmoid: res = makeFullyConnectedLayerWithActivator(row,column, FlowOpSigmoid.instance,input);break;
+            case relu:res =  makeFullyConnectedLayerWithActivator(row,column, FlowOpRelu.instance,input);break;
+            default:res =  makeFullyConnectedLayerWithActivator(row,column, null,input);break;
         }
         return res;
     }

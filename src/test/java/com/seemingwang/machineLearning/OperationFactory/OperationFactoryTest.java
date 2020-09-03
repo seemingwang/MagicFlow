@@ -1,66 +1,60 @@
 package com.seemingwang.machineLearning.OperationFactory;
 
-import com.seemingwang.machineLearning.DerivativeDescriber.MatrixTypeDevDescriber;
 import com.seemingwang.machineLearning.FlowNode.FlowNode;
-import com.seemingwang.machineLearning.Matrix.FullMatrix;
+import com.seemingwang.machineLearning.FlowNode.FlowNodeBuilder;
+import com.seemingwang.machineLearning.Utils.DataTransformer;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class OperationFactoryTest {
 
     @Test
     public void TestAddFunctionForMatrix() throws Exception {
-        FullMatrix f = new FullMatrix(2,3),f1 = new FullMatrix(2,3);
-        FullMatrix ans = new FullMatrix(2,3);
+        double []arr  = new double[6],arr1 = new double[6],ans = new double[6];
+        int ind = 0;
         double v = 1.0;
         for(int i = 0;i < 2;i++){
             for(int j = 0;j < 3;j++){
-                f.set(i,j,v);
-                f1.set(i,j,v);
-                ans.set(i,j,v + v);
+                arr[ind] = arr1[ind] = v;
+                ans[ind++] = v + v;
+                ind++;
                 v+=1.0;
 
             }
         }
-        FullMatrixFlowNode fn = new FullMatrixFlowNode(2,3),fn1 = new FullMatrixFlowNode(2,3);
-        fn.setData(Arrays.asList(f));
-        fn1.setData(Arrays.asList(f1));
-        FullMatrixFlowNode e = (FullMatrixFlowNode)OperationFactory.add(fn, fn1);
+        FlowNode fn = new FlowNodeBuilder().setShape(new Integer[]{2,3}).build(),fn1 = new FlowNodeBuilder().setShape(new Integer[]{2,3}).build();
+        fn.setData(arr);
+        fn1.setData(arr1);
+        FlowNode e = OperationFactory.add(fn, fn1);
         e.getOp().forward(e);
-        Assert.assertEquals(e.getData().get(0),ans);
+        double data[] = e.getData();
+        Assert.assertEquals(data,ans);
     }
 
     @Test
     public void TestAddBetweenScalaAndMatrix() throws Exception {
-        ScalaFlowNode a = new ScalaFlowNode();
-        a.setData(Arrays.asList(1.0));
-        FullMatrixFlowNode b = new FullMatrixFlowNode(1,1);
-        FullMatrix f = new FullMatrix(1,1);
-        f.set(0,0,1.2);
-        b.setData(Arrays.asList(f));
-        FlowNode c = OperationFactory.add(a, b);
-        c.getOp().forward(c);
-        Assert.assertEquals(c.getData().get(0),2.2);
-        FlowNode d = OperationFactory.add(b,a);
-        d.getOp().forward(d);
-        Assert.assertEquals(d.getData().get(0),2.2);
+        FlowNode fn = new FlowNodeBuilder().setShape(new Integer[]{2,3}).build(),fn1 = new FlowNodeBuilder().setShape(new Integer[]{}).build();
+        double [] x = new double[]{1,2,3},y = new double[]{1.7,2.7,3.7};
+        fn1.resetDataSize(1);
+        fn1.data[0] = 0.7;
+        fn.setData(x);
+        FlowNode add = OperationFactory.add(fn,fn1);
+        add.getOp().forward(add);
+        Assert.assertEquals(add.data,y);
     }
 
     @Test
     public void TestMultiply() throws Exception {
         double [][] mat1 = {{1,2},{3,4}},mat2 = {{2,5,1},{6,2,1}};
-        FullMatrixFlowNode f1 = new FullMatrixFlowNode(2,2),f2 = new FullMatrixFlowNode(3,2);
-        f1.setData(Arrays.asList(new FullMatrix(mat1)));
-        f2.setData(Arrays.asList(new FullMatrix(mat2)));
-        FullMatrixFlowNode f3 = (FullMatrixFlowNode)OperationFactory.Multiply(f1,f2);
+        FlowNode f1 = new FlowNodeBuilder().setShape(new Integer[]{2,2}).build(),f2 = new FlowNodeBuilder().setShape(new Integer[]{2,3}).build();
+        f1.setData(DataTransformer.MatrixToArr(mat1));
+        f2.setData(DataTransformer.MatrixToArr(mat2));
+        FlowNode f3 = OperationFactory.matMultiply(f1,f2);
         f3.getOp().forward(f3);
         double [][] dev = {{1,2,2},{3,1,1}},dev1 = {{14,12},{12,21}},dev2 = {{10,5,5},{14,8,8}};
-        FullMatrix devM = new FullMatrix(dev),dev1M = new FullMatrix(dev1), dev2M = new FullMatrix(dev2);
-        List<List<MatrixTypeDevDescriber>> l = f3.getOp().backward(f3,Arrays.asList(devM));
-        Assert.assertEquals(l.get(0).get(0).devData,dev1M);
-        Assert.assertEquals(l.get(1).get(0).devData,dev2M);
+        f3.dev = DataTransformer.MatrixToArr(dev);
+        f3.getOp().backward(f3);
+        Assert.assertEquals(f1.dev,DataTransformer.MatrixToArr(dev1));
+        Assert.assertEquals(f2.dev,DataTransformer.MatrixToArr(dev2));
     }
 }

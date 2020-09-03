@@ -13,8 +13,7 @@ import com.seemingwang.machineLearning.Regularizer.L1WeightDecayNode;
 import com.seemingwang.machineLearning.Regularizer.L2WeightDecayNode;
 import com.seemingwang.machineLearning.Utils.Structure.WeightDecay;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class LogisticRegression {
     public LogisticRegression(int dimension, WeightDecay w) {
@@ -84,5 +83,14 @@ public class LogisticRegression {
         }
         gm.run(result);
         return result.getData()[0];
+    }
+
+    public double[] exportWeight(){
+        int size = weight.getSize();
+        return Arrays.copyOfRange(weight.data,0,size);
+    }
+
+    public Double exportBias() {
+        return bias.data[0];
     }
 }

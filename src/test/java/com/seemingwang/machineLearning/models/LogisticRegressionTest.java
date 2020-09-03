@@ -19,35 +19,34 @@ public class LogisticRegressionTest {
     public void TestExample(){
         int dimension = 50;
         LogisticRegression lr = new LogisticRegression(dimension, null);
-        List<Double> w = new ArrayList<>(),label = new ArrayList<>();
+        List<Double> w = new ArrayList<>();
         int size = 200;
-        List<List<Double>> input = new ArrayList<>();
         for(int i = 0;i < dimension;i++){
             w.add(getDouble(1.0));
         }
         Double bias = getDouble(1.0);
+        double [][] in = new double[size][dimension];
+        double []label = new double[size];
         for(int i = 0;i < size;i++){
-            List<Double> in = new ArrayList<>();
             double tot = 0;
             for(int j = 0;j < dimension;j++) {
-                in.add(getDouble(10));
-                tot += in.get(j) * w.get(j);
+                in[i][j] = getDouble(10);
+                tot += in[i][j] * w.get(j);
             }
             tot += bias;
-            input.add(in);
-            label.add(sigmoid(tot));
+            label[i] = sigmoid(tot);
         }
-        lr.prepare(input,label);
+        lr.prepare(in,label);
         lr.train();
-        List<Double> trainedWeight = lr.exportWeight();
+        double[] trainedWeight = lr.exportWeight();
         Double trainBias = lr.exportBias();
         Assert.assertEquals(trainBias,bias,0.05);
         for(int i = 0;i < dimension;i++)
-            Assert.assertEquals(w.get(i),trainedWeight.get(i),0.05);
+            Assert.assertEquals(w.get(i),trainedWeight[i],0.05);
 
-        for(int i = 0;i < input.size();i++){
-            System.out.println("label " + label.get(i));
-            System.out.println(lr.Predict(input.get(i)));
+        for(int i = 0;i < in.length;i++){
+            System.out.println("label " + label[i]);
+            System.out.println(lr.Predict(in[i]));
         }
 //        double t = 0, t1 = 0;
 //        for(int i = 0;i < dimension;i++){

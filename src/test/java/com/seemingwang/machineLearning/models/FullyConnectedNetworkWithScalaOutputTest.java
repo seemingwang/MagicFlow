@@ -1,9 +1,6 @@
 package com.seemingwang.machineLearning.models;
 
 import com.seemingwang.machineLearning.FlowNode.FlowNode;
-import com.seemingwang.machineLearning.Matrix.FullMatrix;
-import com.seemingwang.machineLearning.Matrix.Matrix;
-import com.seemingwang.machineLearning.Matrix.MatrixException;
 import com.seemingwang.machineLearning.Optimizer.GradientDescentOptimizer;
 import com.seemingwang.machineLearning.Utils.Pair;
 import com.seemingwang.machineLearning.Utils.Structure.Activator;
@@ -221,6 +218,16 @@ public class FullyConnectedNetworkWithScalaOutputTest {
         return w;
     }
 
+    public static double[][] ArraySplit(double []a,int r,int c){
+        double [][] res = new double[r][c];
+        for(int i = 0;i < r;i++){
+            for(int j = 0;j < c;j++){
+                res[i][j] = a[i * c + j];
+            }
+        }
+        return res;
+    }
+
     public Pair<List<List<Double>>,List<Double>> makeTestExample(){
         List<List<Double>> data = new ArrayList<>();
         List<Double> label = new ArrayList<>();
@@ -245,42 +252,11 @@ public class FullyConnectedNetworkWithScalaOutputTest {
         return new Pair<>(data,label);
     }
 
-    public double[][] MatrixWeightToArray(MatrixFlowNode a){
-        Matrix t = a.getData().get(0);
-        int r = t.getRow(), c = t.getColumn();
-            double[][] data = new double[r][c];
-            for (int i = 0; i < r; i++) {
-                for (int j = 0; j < c; j++) {
-                    try {
-                        data[i][j] = t.get(i, j);
-                    } catch (MatrixException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            return data;
-        }
-
-    public double[] MatrixBiasToArray(MatrixFlowNode a){
-        Matrix t = a.getData().get(0);
-        int  c = t.getColumn();
-        double[] data = new double[c];
-            for (int j = 0; j < c; j++) {
-                try {
-                    data[j] = t.get(0, j);
-                } catch (MatrixException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        return data;
-    }
-
     @Test
     public void TestFullyConnectedNetwork1(){
         Pair<List<List<Double>>,List<Double>> t = makeTestExample();
         FullyConnectedNetworkWithScalaOutput f = new FullyConnectedNetworkWithScalaOutput(2, new int[]{2, 32, 32,1}, Activator.sigmoid,new GradientDescentOptimizer(0.01));
-        f.prepare(t.first,t.second);
+        f.prepare(ListToMatrix(t.first),ListToArray(t.second));
         try {
             f.gm.initData();
         } catch (Exception e1) {
@@ -291,7 +267,7 @@ public class FullyConnectedNetworkWithScalaOutputTest {
             f.gm.run(f.output);
             for(int j = 0;j < 30;j++){
                 for(int k = 0;k < 30;k++){
-                    double x= ((FullMatrix)f.output.getData().get(j * 30 + k)).get(0,0);
+                    double x= f.output.getData()[j * 30 + k];
                     System.out.print(belongTo(x) + " ");
                 }
                 System.out.println();
@@ -313,27 +289,27 @@ public class FullyConnectedNetworkWithScalaOutputTest {
         double[][] unitInput = ListToMatrix(t.first);
         NetwordUnit.makePair(e,q);
         int batchSize = 900;
-        f.prepare(t.first,t.second);
+        f.prepare(unitInput,ListToArray(t.second));
         try {
             f.gm.initData();
         } catch (Exception e1) {
             e1.printStackTrace();
         }
-        FullMatrixFlowNode weight1 = null;
+        FlowNode weight1 = null;
         for(FlowNode x:f.gm.exeSeq){
             if(x.getName().equals("weight1")){
-                a.setWeight(MatrixWeightToArray((MatrixFlowNode) x));
-                weight1 = (FullMatrixFlowNode) x;
+                a.setWeight(ArraySplit(x.data,x.getShape()[0],x.getShape()[1]));
+                weight1 = x;
             } else if(x.getName().equals("bias1")){
-                a.setBias(MatrixBiasToArray((MatrixFlowNode) x));
+                a.setBias(x.data);
             } else  if(x.getName().equals("weight2")){
-                c.setWeight(MatrixWeightToArray((MatrixFlowNode) x));
+                c.setWeight(ArraySplit(x.data,x.getShape()[0],x.getShape()[1]));
             } else if(x.getName().equals("bias2")){
-                c.setBias(MatrixBiasToArray((MatrixFlowNode) x));
+                c.setBias(x.data);
             } else if(x.getName().equals("weight3")){
-                e.setWeight(MatrixWeightToArray((MatrixFlowNode) x));
+                e.setWeight(ArraySplit(x.data,x.getShape()[0],x.getShape()[1]));
             } else if(x.getName().equals("bias3")){
-                e.setBias(MatrixBiasToArray((MatrixFlowNode) x));
+                e.setBias(x.data);
             }
         }
         double backdev [][] = new double [900][1];
@@ -347,14 +323,12 @@ public class FullyConnectedNetworkWithScalaOutputTest {
             q.backward(backdev, 0.01);
         }
         int row = a.weight.length, col = a.weight[0].length;
-        FullMatrix f2 = (FullMatrix)weight1.getData().get(0);
+        double[][] f2 = ArraySplit(weight1.data,weight1.getShape()[0],weight1.getShape()[1]);
         for(int i = 0;i < row;i++){
             for(int j = 0;j < col;j++){
-                Assert.assertEquals(a.weight[i][j],f2.get(i,j),0.00001);
+                Assert.assertEquals(a.weight[i][j],f2[i][j],0.00001);
             }
         }
-
-
 
     }
 

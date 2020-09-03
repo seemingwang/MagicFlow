@@ -1,31 +1,63 @@
 package com.seemingwang.machineLearning.GraphManager;
 
 import com.seemingwang.machineLearning.DataInitializer.DataInitializer;
+import com.seemingwang.machineLearning.DataProvider.DataProvider;
 import com.seemingwang.machineLearning.FlowNode.FlowNode;
-import com.seemingwang.machineLearning.FlowNode.ScalaFlowNode;
-import com.seemingwang.machineLearning.Matrix.FullMatrix;
 import com.seemingwang.machineLearning.Optimizer.Optimizer;
 import com.seemingwang.machineLearning.Sequential.Sequential;
 
-import java.util.ArrayList;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
 public class GraphManager {
 
-    static public FullMatrix changeToMatrix(List<Double> t){
-        int size = t.size();
-        FullMatrix f = new FullMatrix(1,size);
-        for(int i = 0;i < size;i++)
-            f.set(0,i,t.get(i));
-        return f;
-    }
-    static public List<FullMatrix> changeToMatrixList(List<List<Double>> l){
-        List<FullMatrix> res = new ArrayList<>();
-        for(List<Double> c:l){
-            res.add(changeToMatrix(c));
+    static public double[] MatrixToArr(double[][] l){
+        int row = l.length,col = l[0].length;
+        double [] arr = new double[row * col];
+        for(int i = 0;i < row;i++){
+            for(int j = 0;j < col;j++)
+                arr[i * col + j] = l[i][j];
         }
-        return res;
+        return arr;
+    }
+    void feedFlowNodeData(FlowNode f, DataProvider dp) throws Exception {
+        if(!initDone){
+            initData();
+            initDone = true;
+        }
+        Integer[] shape = dp.getShape();
+        Integer[] nodeShape = f.getShape();
+        if(nodeShape.length == 0){
+            f.resetDevSize(1);
+            f.data[0] = dp.getData(0);
+            return;
+        }
+        if(nodeShape.length != shape.length){
+            throw new Exception("flowNode f's fed data doesn't have the right shape, expected shape is " + f.getShapeDesc());
+        }
+        int size = 1;
+        Integer []pos = new Integer[shape.length];
+        for(int i = 0;i < shape.length;i++){
+            if(f.getShape()[i] == 0){
+                setBatchSize(shape[i]);
+            } else if(!shape[i].equals(f.getShape()[i])){
+                throw new Exception("flowNode f's expected shape is " + f.getShapeDesc() + " which the input's shape doesn't match");
+            }
+            size *= shape[i];
+            pos[i] = 0;
+        }
+        for(int i = 0;i < size;i++){
+            pos[shape.length - 1]++;
+            int k = shape.length - 1;
+            while(k > 0 && pos[k] == shape[k]){
+                pos[k] = 0;
+                pos[k-1]++;
+                k--;
+            }
+            f.data[i] = dp.getData(pos);
+        }
+
     }
     public List<FlowNode> exeSeq;
 
@@ -33,27 +65,33 @@ public class GraphManager {
         return batchSize;
     }
 
-    public GraphManager setBatchSize(int batchSize) {
-        this.batchSize = batchSize;
-        return this;
+    private Integer batchSize;
+
+    private void setBatchSize(int b){
+        try {
+            Field f  = Integer.class.getDeclaredField("value");
+            f.setAccessible(true);
+            f.set(batchSize,b);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
-
-    public int batchSize;
-
     public Optimizer getOptimizer() {
         return optimizer;
     }
 
 
-    public ScalaFlowNode getOptimizeNode() {
+    public FlowNode getOptimizeNode() {
         return optimizeNode;
     }
 
-    public void setOptimizeNode(ScalaFlowNode optimizeNode) {
+    public void setOptimizeNode(FlowNode optimizeNode) {
         this.optimizeNode = optimizeNode;
     }
 
-    public ScalaFlowNode optimizeNode;
+    public FlowNode optimizeNode;
 
     public GraphManager setOptimizer(Optimizer optimizer) {
         this.optimizer = optimizer;
@@ -73,17 +111,10 @@ public class GraphManager {
 
     public DataInitializer initializer;
     public boolean initDone;
-    public void feed(Map<FlowNode,List> m) throws Exception {
-        batchSize = 0;
-
+    public void feed(Map<FlowNode,DataProvider> m) throws Exception {
         for(FlowNode c:m.keySet()){
-            List l = m.get(c);
-            c.setData(l);
-            if(batchSize == 0)
-                batchSize = c.getData().size();
-            else if(batchSize != c.getData().size()){
-                throw new Exception("data size varies");
-            }
+            DataProvider dp = m.get(c);
+            feedFlowNodeData(c,dp);
         }
     }
     public void initData() throws Exception {
@@ -91,6 +122,10 @@ public class GraphManager {
         for(FlowNode c:exeSeq){
             if(c.isTrainable()){
                 initializer.initData(c);
+            }
+            for(int i = 0;i < c.shape.length;i++){
+                if(c.shape[i] == null)
+                    c.shape[i] = batchSize;
             }
         }
         initDone = true;
@@ -122,7 +157,7 @@ public class GraphManager {
     }
 
     public double getCost(){
-        return optimizeNode.getData().get(0);
+        return optimizeNode.data[0];
     }
 
 }

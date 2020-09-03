@@ -1,6 +1,6 @@
 package com.seemingwang.machineLearning.Optimizer;
 
-import com.seemingwang.machineLearning.FlowNode.ScalaFlowNode;
+import com.seemingwang.machineLearning.FlowNode.FlowNode;
 
 public abstract class Optimizer {
 
@@ -9,5 +9,5 @@ public abstract class Optimizer {
     }
 
     public double learningRate;
-    public abstract void run(ScalaFlowNode node);
+    public abstract void run(FlowNode node);
 }

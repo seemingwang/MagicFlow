@@ -1,7 +1,6 @@
 package com.seemingwang.machineLearning.Sequential;
 
 import com.seemingwang.machineLearning.FlowNode.FlowNode;
-import com.seemingwang.machineLearning.FlowNode.ScalaFlowNode;
 import com.seemingwang.machineLearning.OperationFactory.OperationFactory;
 import org.junit.Assert;
 import org.junit.Test;

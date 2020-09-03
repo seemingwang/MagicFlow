@@ -2,8 +2,6 @@ package com.seemingwang.machineLearning.OperationFactory;
 
 import com.seemingwang.machineLearning.DerivativeDescriber.MatrixTypeDevDescriber;
 import com.seemingwang.machineLearning.FlowNode.FlowNode;
-import com.seemingwang.machineLearning.FlowNode.FullMatrixFlowNode;
-import com.seemingwang.machineLearning.FlowNode.ScalaFlowNode;
 import com.seemingwang.machineLearning.Matrix.FullMatrix;
 import org.junit.Assert;
 import org.junit.Test;

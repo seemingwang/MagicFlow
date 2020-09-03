@@ -3,7 +3,6 @@ package com.seemingwang.machineLearning.Regularizer;
 import com.seemingwang.machineLearning.DataInitializer.AveDataInitializer;
 import com.seemingwang.machineLearning.FlowNode.FlowNode;
 import com.seemingwang.machineLearning.FlowNode.FlowNodeBuilder.ScalaFlowNodeBuilder;
-import com.seemingwang.machineLearning.FlowNode.ScalaFlowNode;
 import com.seemingwang.machineLearning.GraphManager.GraphManager;
 import com.seemingwang.machineLearning.OperationFactory.OperationFactory;
 import com.seemingwang.machineLearning.Optimizer.GradientDescentOptimizer;

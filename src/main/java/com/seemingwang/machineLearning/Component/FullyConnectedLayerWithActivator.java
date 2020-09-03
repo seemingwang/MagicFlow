@@ -1,11 +1,9 @@
 package com.seemingwang.machineLearning.Component;
 
+import com.seemingwang.machineLearning.FlowNode.FlowNode;
 import com.seemingwang.machineLearning.FlowNode.FlowNodeBuilder.FullMatrixFlowNodeBuilder;
-import com.seemingwang.machineLearning.FlowNode.FlowNodeOpClass.FlowOpSingleParamReluForMatrixType;
-import com.seemingwang.machineLearning.FlowNode.FlowNodeOpClass.FlowOpSingleParamSigmoidForMatrixType;
 import com.seemingwang.machineLearning.FlowNode.FlowOpSingle;
-import com.seemingwang.machineLearning.FlowNode.FullMatrixFlowNode;
-import com.seemingwang.machineLearning.FlowNode.MatrixFlowNode;
+import com.seemingwang.machineLearning.FlowNode.FlowOpSingleParam;
 import com.seemingwang.machineLearning.OperationFactory.OperationFactory;
 import com.seemingwang.machineLearning.Utils.Structure.Activator;
 
@@ -17,7 +15,7 @@ public class FullyConnectedLayerWithActivator {
         this.count = 0;
     }
 
-    MatrixFlowNode makeFullyConnectedLayerWithActivator(int row, int column, FlowOpSingle instance, MatrixFlowNode input) {
+    FlowNode makeFullyConnectedLayerWithActivator(int row, int column, FlowOpSingleParam instance, FlowNode input) {
         count++;
         FullMatrixFlowNode weight = new FullMatrixFlowNodeBuilder(row, column).setTrainable(true).setName("weight" + count).build();
         try {

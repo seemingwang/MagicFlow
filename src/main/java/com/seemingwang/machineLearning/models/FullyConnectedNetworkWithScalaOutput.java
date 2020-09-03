@@ -3,8 +3,6 @@ package com.seemingwang.machineLearning.models;
 import com.seemingwang.machineLearning.Component.FullyConnectedLayers;
 import com.seemingwang.machineLearning.DataInitializer.AveDataInitializer;
 import com.seemingwang.machineLearning.FlowNode.FlowNode;
-import com.seemingwang.machineLearning.FlowNode.FullMatrixFlowNode;
-import com.seemingwang.machineLearning.FlowNode.ScalaFlowNode;
 import com.seemingwang.machineLearning.GraphManager.GraphManager;
 import com.seemingwang.machineLearning.Matrix.FullMatrix;
 import com.seemingwang.machineLearning.OperationFactory.OperationFactory;
@@ -22,7 +20,7 @@ public class FullyConnectedNetworkWithScalaOutput {
     GraphManager gm;
 
     public FullyConnectedNetworkWithScalaOutput(int inputDimension, int [] weightDimension, Activator a, Optimizer op) {
-        gm = new GraphManager().setInitializer(new AveDataInitializer(-10,10)).setOptimizer(op);
+        gm = new GraphManager().setInitializer(new DataInitializer(-10,10)).setOptimizer(op);
         label = new ScalaFlowNode();
         label.setName("label");
         try {

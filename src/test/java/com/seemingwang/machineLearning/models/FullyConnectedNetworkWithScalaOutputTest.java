@@ -1,8 +1,6 @@
 package com.seemingwang.machineLearning.models;
 
 import com.seemingwang.machineLearning.FlowNode.FlowNode;
-import com.seemingwang.machineLearning.FlowNode.FullMatrixFlowNode;
-import com.seemingwang.machineLearning.FlowNode.MatrixFlowNode;
 import com.seemingwang.machineLearning.Matrix.FullMatrix;
 import com.seemingwang.machineLearning.Matrix.Matrix;
 import com.seemingwang.machineLearning.Matrix.MatrixException;
@@ -289,7 +287,7 @@ public class FullyConnectedNetworkWithScalaOutputTest {
             e1.printStackTrace();
         }
         for(int i = 0;i < 10000;i++) {
-            f.train(100);
+            f.train(1000);
             f.gm.run(f.output);
             for(int j = 0;j < 30;j++){
                 for(int k = 0;k < 30;k++){

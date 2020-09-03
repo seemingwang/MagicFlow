@@ -2,7 +2,7 @@ package com.seemingwang.machineLearning.FlowNode;
 
 import java.util.List;
 
-public abstract class FlowNode<T> {
+public class FlowNode {
     public boolean isTrainable() {
         return trainable;
     }
@@ -31,19 +31,65 @@ public abstract class FlowNode<T> {
     }
 
     FlowOp op;
-    public List<T> getData() {
+    public double[] getData() {
         return data;
     }
 
-    public void setData(List<T> data) {
+    public void setData(double[] data) {
         this.data = data;
     }
 
-    public List<T> data;
+    public double[] data,dev;
 
-    public abstract int [] getShape();
+    public void setShape(Integer[] shape) {
+        if(shape != null) {
+            this.shape = new Integer[shape.length];
+            for(int i = 0;i < shape.length;i++)
+                this.shape[i] = shape[i];
+        }
+    }
 
-    public abstract void updateDev(T dev, double learningRate);
+    public String getShapeDesc(){
+        String res = "(";
+        if(shape != null){
+            for(int i = 0;i < shape.length;i++){
+                if(i > 0)
+                    res += ",";
+                res += shape[i] == null?"null":shape[i];
+            }
+        }
+        return res + ")";
+    }
+
+    public Integer shape[];
+    public int getSize(){
+        int size = 1;
+        for(int x: shape)
+            size *= x;
+        return size;
+    }
+    public Integer [] getShape(){
+        return shape;
+    }
+
+    public void updateDev(double learningRate){
+        if(trainable){
+           int size = getSize();
+           for(int i = 0;i < size;i++) {
+               data[i] += learningRate * dev[i];
+           }
+        }
+    }
+
+    public void resetDataSize(int size){
+        if(data == null || data.length != size) {
+            data = new double[size];
+        }
+    }
+
+    public void resetDevSize(int size){
+        dev = new double[size];
+    }
 
     public String getName() {
         return name;

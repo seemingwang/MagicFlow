@@ -13,10 +13,6 @@ import java.util.Map;
 public class GraphManager {
 
     void feedFlowNodeData(FlowNode f, DataProvider dp) throws Exception {
-        if(!initDone){
-            initData();
-            initDone = true;
-        }
         Integer[] shape = dp.getShape();
         Integer[] nodeShape = f.getShape();
         if(nodeShape.length == 0){
@@ -105,6 +101,11 @@ public class GraphManager {
     public DataInitializer initializer;
     public boolean initDone;
     public void feed(Map<FlowNode,DataProvider> m) throws Exception {
+        if(!initDone){
+            initData();
+            initDone = true;
+        }
+        setBatchSize(0);
         for(FlowNode c:m.keySet()){
             DataProvider dp = m.get(c);
             feedFlowNodeData(c,dp);

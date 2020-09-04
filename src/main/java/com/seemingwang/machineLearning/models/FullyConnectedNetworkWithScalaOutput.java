@@ -1,15 +1,17 @@
 package com.seemingwang.machineLearning.models;
 
 import com.seemingwang.machineLearning.Component.FullyConnectedLayers;
-import com.seemingwang.machineLearning.DataInitializer.RangeDataInitializer;
-import com.seemingwang.machineLearning.DataProvider.ArrayDataProvider;
+import com.seemingwang.machineLearning.DataInitializer.NormalDataInitializer;
 import com.seemingwang.machineLearning.DataProvider.DataProvider;
+import com.seemingwang.machineLearning.DataProvider.MiniBatch;
+import com.seemingwang.machineLearning.DataProvider.RandomShuffleBatch;
 import com.seemingwang.machineLearning.DataProvider.TwoDArrayDataProvider;
 import com.seemingwang.machineLearning.FlowNode.FlowNode;
 import com.seemingwang.machineLearning.FlowNode.FlowNodeBuilder;
 import com.seemingwang.machineLearning.GraphManager.GraphManager;
 import com.seemingwang.machineLearning.OperationFactory.OperationFactory;
 import com.seemingwang.machineLearning.Optimizer.Optimizer;
+import com.seemingwang.machineLearning.Utils.Pair;
 import com.seemingwang.machineLearning.Utils.Structure.Activator;
 import com.seemingwang.machineLearning.Utils.Tripple;
 
@@ -20,10 +22,12 @@ public class FullyConnectedNetworkWithScalaOutput {
     FlowNode input,output,label;
     GraphManager gm;
     int dimension;
+    MiniBatch batch;
 
     public FullyConnectedNetworkWithScalaOutput(int inputDimension, int [] weightDimension, Activator a, Optimizer op) {
-        gm = new GraphManager().setInitializer(new RangeDataInitializer(0,3)).setOptimizer(op);
-        label = new FlowNodeBuilder().setName("label").build();
+        dimension = inputDimension;
+        gm = new GraphManager().setInitializer(new NormalDataInitializer(0,5)).setOptimizer(op);
+        label = new FlowNodeBuilder().setName("label").setShape(new Integer[]{null,1}).build();
         try {
             input = new FlowNodeBuilder().setShape(new Integer[]{null,inputDimension}).setName("input").build();
             FlowNode temp = input;
@@ -46,24 +50,26 @@ public class FullyConnectedNetworkWithScalaOutput {
         }
     }
 
-    public void prepare(double[][] data, double[] dataLabel){
-        Map<FlowNode,DataProvider> p = new HashMap<>();
-        p.put(input,new TwoDArrayDataProvider(data));
-        p.put(label,new ArrayDataProvider(dataLabel));
-        try {
-            gm.feed(p);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public void prepare(double[][] data, double[] dataLabel,int batchSize){
+        batch = new RandomShuffleBatch(new TwoDArrayDataProvider(data),new TwoDArrayDataProvider(dataLabel,dataLabel.length,1),batchSize);
     }
 
     public void train(int step){
+        Map<FlowNode,DataProvider> m = new HashMap<>();
         for(int i = 0;i < step;i++){
-            gm.run();
+            Pair<DataProvider,DataProvider> p = batch.nextBatch();
+            m.put(input,p.first);
+            m.put(label,p.second);
+            try {
+                gm.feed(m);
+                gm.run();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public Double Predict(double[] in){
+    public Double predict(double[] in){
         Map<FlowNode,DataProvider> p = new HashMap<>();
         p.put(input,new TwoDArrayDataProvider(in,1, dimension));
         try {

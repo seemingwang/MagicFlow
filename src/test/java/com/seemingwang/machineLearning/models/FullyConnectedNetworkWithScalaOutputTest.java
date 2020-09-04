@@ -1,5 +1,7 @@
 package com.seemingwang.machineLearning.models;
 
+import com.seemingwang.machineLearning.DataProvider.DataProvider;
+import com.seemingwang.machineLearning.DataProvider.TwoDArrayDataProvider;
 import com.seemingwang.machineLearning.FlowNode.FlowNode;
 import com.seemingwang.machineLearning.Optimizer.GradientDescentOptimizer;
 import com.seemingwang.machineLearning.Utils.Pair;
@@ -7,184 +9,8 @@ import com.seemingwang.machineLearning.Utils.Structure.Activator;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-abstract class NetwordUnit {
-    int shape[];
-    public static void makePair(NetwordUnit a,NetwordUnit b){
-        a.next = b;
-        b.previous = a;
-    }
-    double [][] output,input,weight,wdev;;
-    NetwordUnit previous, next;
-    public static void reset(double [][] mat){
-        for(int i = 0;i < mat.length;i++){
-            for(int j = 0;j < mat[0].length;j++){
-                mat[i][j] = 0;
-            }
-        }
-    }
-    abstract void cal();
-    abstract void exportWeight();
-    abstract double[][] calDev(double [][]dev,double learningRate);
-    public void forward(){
-        cal();
-        if(next != null){
-            next.input = output;
-            next.forward();
-        }
-    }
+import java.util.*;
 
-    public void backward(double [][]dev,double learningRate) {
-        double[][] dev2 = calDev(dev,learningRate);
-        if (previous != null) {
-            previous.backward(dev2,learningRate);
-        }
-    }
-
-}
-class SquareError extends NetwordUnit{
-
-    public SquareError(double[] label) {
-        this.label = label;
-    }
-
-    public double label[];
-
-    @Override
-    void cal() {
-        output = new double [input.length][1];
-        for(int i = 0; i < input.length;i++){
-            output[i][0] = (input[i][0] - label[i]) * (input[i][0] - label[i]);
-        }
-    }
-
-    @Override
-    void exportWeight() {
-
-    }
-
-    @Override
-    double[][] calDev(double[][] dev, double learningRate) {
-        double [][] w = new double[dev.length][1];
-        for(int i = 0;i < dev.length;i++){
-            w[i][0] = 2.0 * (input[i][0] - label[i]) * dev[i][0];
-        }
-        return w;
-    }
-}
-
-class FullyConnectedTestUnit extends NetwordUnit{
-
-    public void setWeight(double[][] weight) {
-        this.weight = weight;
-    }
-
-    public void setBias(double []bias){
-        this.bias = bias;
-    }
-    FullyConnectedTestUnit(int r,int c){
-        shape = new int[]{r,c};
-        weight = new double [r][c];
-    }
-
-    public double bias[],wbias[];
-
-    @Override
-    void cal() {
-        int r1 = input.length,c = shape[1],r = shape[0];
-        output = new double [r1][c];
-        reset(output);
-        for(int i = 0;i < r1;i++){
-            for(int j = 0;j < c;j++){
-                for(int k = 0;k < r;k++){
-                    output[i][j] += input[i][k] * weight[k][j];
-                }
-                output[i][j] += bias[j];
-            }
-        }
-    }
-
-    @Override
-    void exportWeight() {
-        System.out.println("weight matrix");
-        for(int i = 0;i < weight.length;i++){
-            for(int j = 0;j < weight[0].length;j++){
-                System.out.print(weight[i][j] + " ");
-            }
-            System.out.println();
-        }
-        System.out.println("wbias");
-        for(int i = 0;i < bias.length;i++){
-            System.out.print(bias[i] + " ");
-        }
-        System.out.println();
-    }
-
-    @Override
-    double[][] calDev(double[][] dev,double learningRate) {
-        int r1 = input.length,c = shape[1],r = shape[0];
-        double dev2[][] = new double[r1][r];
-        wdev= new double[r][c];
-        wbias = new double [c];
-        reset(dev2);
-        reset(wdev);
-        for(int i = 0;i < r1;i++){
-            for(int j = 0;j < c;j++){
-                for(int k = 0;k < r;k++){
-                    //output[i][j] += input[i][k] * weight[k][j];
-                    dev2[i][k] += dev[i][j] * weight[k][j];
-                    wdev[k][j] += dev[i][j] * input[i][k];
-
-                }
-                wbias[j] += dev[i][j];
-            }
-        }
-        for(int i = 0;i < r;i++){
-            for(int j = 0;j < c;j++){
-                weight[i][j] -= wdev[i][j] * learningRate;
-            }
-        }
-        for(int i = 0;i < c;i++)
-            bias[i] -= wbias[i] * learningRate;
-        return dev2;
-    }
-}
-
-class SigmoidTestUnit extends NetwordUnit{
-
-    double sigmoid(double x){
-        return Math.exp(x)/(1.0 + Math.exp(x));
-    }
-    @Override
-    void cal() {
-        int r = input.length, c = input[0].length;
-        output = new double[r][c];
-        for(int i = 0;i < r;i++){
-            for(int j = 0;j < c;j++){
-                output[i][j] = sigmoid(input[i][j]);
-            }
-        }
-    }
-
-    @Override
-    void exportWeight() {
-
-    }
-
-    @Override
-    double[][] calDev(double[][] dev,double l) {
-        int r = dev.length, c = dev[0].length;
-        double [][] dev2 = new double[r][c];
-        for(int i = 0;i < r;i++){
-            for(int j =0;j < c;j++){
-                dev2[i][j] = sigmoid(input[i][j]) * (1.0 - sigmoid(input[i][j])) * dev[i][j];
-            }
-        }
-        return dev2;
-    }
-}
 public class FullyConnectedNetworkWithScalaOutputTest {
 
     int belongTo(double a){
@@ -256,23 +82,33 @@ public class FullyConnectedNetworkWithScalaOutputTest {
     public void TestFullyConnectedNetwork1(){
         Pair<List<List<Double>>,List<Double>> t = makeTestExample();
         FullyConnectedNetworkWithScalaOutput f = new FullyConnectedNetworkWithScalaOutput(2, new int[]{2, 32, 32,1}, Activator.sigmoid,new GradientDescentOptimizer(0.01));
-        f.prepare(ListToMatrix(t.first),ListToArray(t.second));
         try {
             f.gm.initData();
         } catch (Exception e1) {
             e1.printStackTrace();
         }
-        for(int i = 0;i < 10000;i++) {
-            f.train(1000);
-            f.gm.run(f.output);
-            for(int j = 0;j < 30;j++){
-                for(int k = 0;k < 30;k++){
-                    double x= f.output.getData()[j * 30 + k];
-                    System.out.print(belongTo(x) + " ");
+        double [][] data = ListToMatrix(t.first);
+        double []label = ListToArray(t.second);
+        f.prepare(data,label,30);
+        Map<FlowNode,DataProvider>m = new HashMap<>();
+        m.put(f.input,new TwoDArrayDataProvider(data));
+        m.put(f.label,new TwoDArrayDataProvider(label,label.length,1));
+        for(int i = 0;i < 1000000;i++) {
+            f.train(10000);
+            try {
+                f.gm.feed(m);
+                f.gm.run(f.output);
+                for(int j = 0;j < 30;j++){
+                    for(int k = 0;k < 30;k++){
+                        double x= f.output.data[j * 30 + k];
+                        System.out.print(belongTo(x) + " ");
+                    }
+                    System.out.println();
                 }
-                System.out.println();
+                System.out.println(f.gm.getCost());
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            System.out.println(f.gm.getCost());
         }
     }
     @Test
@@ -281,15 +117,15 @@ public class FullyConnectedNetworkWithScalaOutputTest {
         FullyConnectedNetworkWithScalaOutput f = new FullyConnectedNetworkWithScalaOutput(2, new int[]{2, 16, 16, 8,8,1}, Activator.sigmoid,new GradientDescentOptimizer(0.01));
         FullyConnectedTestUnit a = new FullyConnectedTestUnit(2,16), c = new FullyConnectedTestUnit(16,8), e = new FullyConnectedTestUnit(8,1);
         SigmoidTestUnit b = new SigmoidTestUnit(),d = new SigmoidTestUnit();
-        NetwordUnit.makePair(a,b);
-        NetwordUnit.makePair(b,c);
-        NetwordUnit.makePair(c,d);
-        NetwordUnit.makePair(d,e);
+        NetworkUnit.makePair(a,b);
+        NetworkUnit.makePair(b,c);
+        NetworkUnit.makePair(c,d);
+        NetworkUnit.makePair(d,e);
         SquareError q = new SquareError(ListToArray(t.second));
         double[][] unitInput = ListToMatrix(t.first);
-        NetwordUnit.makePair(e,q);
+        NetworkUnit.makePair(e,q);
         int batchSize = 900;
-        f.prepare(unitInput,ListToArray(t.second));
+        f.prepare(unitInput,ListToArray(t.second),batchSize);
         try {
             f.gm.initData();
         } catch (Exception e1) {
@@ -312,12 +148,12 @@ public class FullyConnectedNetworkWithScalaOutputTest {
                 e.setBias(x.data);
             }
         }
-        double backdev [][] = new double [900][1];
-        for(int i  = 0;i < 900;i++){
+        double backdev [][] = new double [batchSize][1];
+        for(int i  = 0;i < batchSize;i++){
             backdev[i][0] = 1.0/batchSize;
         }
-        f.train(10);
-        for(int i = 0;i < 10;i++) {
+        f.train(100);
+        for(int i = 0;i < 100;i++) {
             a.input = unitInput;
             a.forward();
             q.backward(backdev, 0.01);

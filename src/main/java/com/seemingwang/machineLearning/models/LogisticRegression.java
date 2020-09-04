@@ -19,7 +19,7 @@ import java.util.Map;
 public class LogisticRegression {
     public LogisticRegression(int dimension, WeightDecay w) {
         this.dimension = dimension;
-        gm = new GraphManager().setInitializer(new RangeDataInitializer(0,3)).setOptimizer(new GradientDescentOptimizer(0.1));
+        gm = new GraphManager().setInitializer(new RangeDataInitializer(-3,3)).setOptimizer(new GradientDescentOptimizer(0.1));
         this.input = new FlowNodeBuilder().setShape(new Integer[]{null,dimension}).setName("input").build();
         this.weight = new FlowNodeBuilder().setShape(new Integer[]{dimension,1}).setTrainable(true).setName("weight").build();
         try {
@@ -65,12 +65,12 @@ public class LogisticRegression {
             e.printStackTrace();
         }
     }
-    public void train(){
-        for(int i = 0;i < 50000;i++){
+    public void train(int step){
+        for(int i = 0;i < step;i++){
             gm.run();
-            if(i % 100 == 0){
-                System.out.println("for step " + i + " cost is " + gm.getCost());
-            }
+//            if(i % 100 == 0){
+//                System.out.println("for step " + i + " cost is " + gm.getCost());
+//            }
         }
     }
 

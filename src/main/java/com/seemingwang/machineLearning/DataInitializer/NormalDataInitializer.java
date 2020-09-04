@@ -4,15 +4,16 @@ import com.seemingwang.machineLearning.FlowNode.FlowNode;
 
 import java.util.Random;
 
-public class RangeDataInitializer implements DataInitializer{
+public class NormalDataInitializer implements DataInitializer{
 
     Random r;
 
-    double up,down;
-    public RangeDataInitializer(double up,double down) {
+    double mean,dev,sqrtDev;
+    public NormalDataInitializer(double mean,double dev) {
         r = new Random();
-        this.up = up;
-        this.down = down;
+        this.mean = mean;
+        this.dev = dev;
+        this.sqrtDev = Math.sqrt(dev);
     }
 
     @Override
@@ -22,6 +23,6 @@ public class RangeDataInitializer implements DataInitializer{
         int size = a.getSize();
         a.resetDataSize(size);
         for(int i = 0;i < size;i++)
-            a.data[i] = r.nextDouble() * (up - down) + down;
+            a.data[i] = r.nextGaussian()*sqrtDev + mean;
     }
 }

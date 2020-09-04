@@ -33,25 +33,9 @@ public class FlowOpSubtract extends FlowOpDoubleParams {
 
     @Override
     public void connect(FlowNode input0, FlowNode input1, FlowNode output) {
-        Integer size0 = 1,size1 = 1;
-        for(Integer s: input0.getShape()){
-            if(s == null)
-                continue;
-            size0 *= s;
-        }
-        for(Integer s: input1.getShape()){
-            if(s == null)
-                continue;
-            size1 *= s;
-        }
-        if(size0 >= size1){
-            output.setShape(input0.shape);
-            output.getChildren().add(input0);
-            output.getChildren().add(input1);
-        } else {
-            output.setShape(input1.shape);
-            output.getChildren().add(input1);
-            output.getChildren().add(input0);
-        }
+        output.setShape(input0.shape);
+        output.getChildren().add(input0);
+        output.getChildren().add(input1);
+        output.setOp(this);
     }
 }

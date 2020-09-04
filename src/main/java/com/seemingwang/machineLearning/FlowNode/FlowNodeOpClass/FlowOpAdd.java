@@ -33,6 +33,13 @@ public class FlowOpAdd extends FlowOpDoubleParams {
 
     @Override
     public void connect(FlowNode input0, FlowNode input1, FlowNode output) {
+        if(input0.getShape().length > input1.getShape().length){
+            output.setShape(input0.shape);
+            output.getChildren().add(input0);
+            output.getChildren().add(input1);
+            output.setOp(this);
+            return;
+        }
         Integer size0 = 1,size1 = 1;
         for(Integer s: input0.getShape()){
             if(s == null)
@@ -53,5 +60,6 @@ public class FlowOpAdd extends FlowOpDoubleParams {
             output.getChildren().add(input1);
             output.getChildren().add(input0);
         }
+        output.setOp(this);
     }
 }

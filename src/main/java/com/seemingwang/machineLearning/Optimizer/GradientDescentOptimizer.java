@@ -34,6 +34,9 @@ public class GradientDescentOptimizer extends Optimizer{
             if(c.isTrainable()){
                 c.updateDev(learningRate);
             }
+            int size = c.getSize();
+            for(int i = 0;i < size;i++)
+                c.dev[i] = 0;
         }
 
     }

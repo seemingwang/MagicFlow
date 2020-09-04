@@ -19,6 +19,7 @@ import java.util.Map;
 public class FullyConnectedNetworkWithScalaOutput {
     FlowNode input,output,label;
     GraphManager gm;
+    int dimension;
 
     public FullyConnectedNetworkWithScalaOutput(int inputDimension, int [] weightDimension, Activator a, Optimizer op) {
         gm = new GraphManager().setInitializer(new RangeDataInitializer(0,3)).setOptimizer(op);
@@ -37,7 +38,7 @@ public class FullyConnectedNetworkWithScalaOutput {
             diff.setName("diff");
             FlowNode squareError = OperationFactory.pow(diff,2);
             squareError.setName("squareError");
-            FlowNode averageSum = OperationFactory.reduceSum(squareError,-1);
+            FlowNode averageSum = OperationFactory.reduceSum(squareError,-1,true);
             averageSum.setName("averageSum");
             gm.setOptimizeNode(averageSum);
         } catch (Exception e) {
@@ -64,7 +65,7 @@ public class FullyConnectedNetworkWithScalaOutput {
 
     public Double Predict(double[] in){
         Map<FlowNode,DataProvider> p = new HashMap<>();
-        p.put(input,new TwoDArrayDataProvider(in));
+        p.put(input,new TwoDArrayDataProvider(in,1, dimension));
         try {
             gm.feed(p);
         } catch (Exception e) {

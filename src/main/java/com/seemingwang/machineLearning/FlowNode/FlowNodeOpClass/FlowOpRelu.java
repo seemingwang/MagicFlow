@@ -33,5 +33,6 @@ public class FlowOpRelu extends FlowOpSingleParam {
     public void connect(FlowNode input0, FlowNode output) throws Exception {
         output.setShape(input0.shape);
         output.getChildren().add(input0);
+        output.setOp(this);
     }
 }

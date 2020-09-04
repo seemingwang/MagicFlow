@@ -53,6 +53,7 @@ public class FlowOpMultiply extends FlowOpDoubleParams {
             output.getChildren().add(input1);
             output.getChildren().add(input0);
         }
+        output.setOp(this);
     }
 }
 

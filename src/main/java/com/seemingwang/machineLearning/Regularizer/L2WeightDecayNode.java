@@ -40,6 +40,11 @@ public class L2WeightDecayNode extends FlowNode{
             @Override
             public void forward(FlowNode f) {
                 double res = 0;
+                for(FlowNode c: f.getChildren()){
+                    int size =  c.getSize();
+                    for(int i = 0;i < size;i++)
+                        res += c.data[i]*c.data[i];
+                }
                 f.resetDataSize(1);
                 f.data[0] = res * ((L2WeightDecayNode)f).lamda/2;
             }
@@ -55,6 +60,7 @@ public class L2WeightDecayNode extends FlowNode{
                 }
             }
         });
+        optimize.setShape(new Integer[]{});
         return optimize;
 
 

@@ -1,7 +1,6 @@
 package com.seemingwang.machineLearning.models;
 
 import com.seemingwang.machineLearning.DataInitializer.RangeDataInitializer;
-import com.seemingwang.machineLearning.DataProvider.ArrayDataProvider;
 import com.seemingwang.machineLearning.DataProvider.DataProvider;
 import com.seemingwang.machineLearning.DataProvider.TwoDArrayDataProvider;
 import com.seemingwang.machineLearning.FlowNode.FlowNode;
@@ -13,7 +12,9 @@ import com.seemingwang.machineLearning.Regularizer.L1WeightDecayNode;
 import com.seemingwang.machineLearning.Regularizer.L2WeightDecayNode;
 import com.seemingwang.machineLearning.Utils.Structure.WeightDecay;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LogisticRegression {
     public LogisticRegression(int dimension, WeightDecay w) {
@@ -26,9 +27,10 @@ public class LogisticRegression {
             this.bias = new FlowNodeBuilder().setShape(new Integer[]{}).setTrainable(true).setName("bias").build();
             this.result = OperationFactory.sigmoid(OperationFactory.add(out,this.bias));
             result.setName("result");
-            FlowNode label = new FlowNodeBuilder().setName("label").build();
+            System.out.println(result.getShapeDesc());
+            FlowNode label = new FlowNodeBuilder().setShape(new Integer[]{null,1}).setName("label").build();
             FlowNode diffSquare = OperationFactory.pow(OperationFactory.subtract(result,label),2);
-            FlowNode averageSum = OperationFactory.reduceSum(diffSquare,-1);
+            FlowNode averageSum = OperationFactory.reduceSum(diffSquare,-1,true);
             diffSquare.setName("diffSquare");
             averageSum.setName("averageSum");
             if(w == null) {
@@ -56,7 +58,7 @@ public class LogisticRegression {
     public void prepare(double[][] data, double[] dataLabel){
         Map<FlowNode,DataProvider> p = new HashMap<>();
         p.put(input,new TwoDArrayDataProvider(data));
-        p.put(label,new ArrayDataProvider(dataLabel));
+        p.put(label,new TwoDArrayDataProvider(dataLabel,dataLabel.length,1));
         try {
             gm.feed(p);
         } catch (Exception e) {
@@ -74,7 +76,7 @@ public class LogisticRegression {
 
     public Double Predict(double[] in){
         Map<FlowNode,DataProvider> p = new HashMap<>();
-        p.put(input,new TwoDArrayDataProvider(in));
+        p.put(input,new TwoDArrayDataProvider(in,1,dimension));
         try {
             gm.feed(p);
         } catch (Exception e) {

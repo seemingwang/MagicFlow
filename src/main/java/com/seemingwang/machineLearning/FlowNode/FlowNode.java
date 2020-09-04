@@ -1,5 +1,6 @@
 package com.seemingwang.machineLearning.FlowNode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FlowNode {
@@ -20,7 +21,7 @@ public class FlowNode {
         this.children = children;
     }
 
-    public List<FlowNode> children;
+    public List<FlowNode> children = new ArrayList<>();
 
     public FlowOp getOp() {
         return op;
@@ -61,7 +62,7 @@ public class FlowNode {
         return res + ")";
     }
 
-    public Integer shape[];
+    public Integer shape[] = new Integer[]{};
     public int getSize(){
         int size = 1;
         for(int x: shape)
@@ -76,7 +77,7 @@ public class FlowNode {
         if(trainable){
            int size = getSize();
            for(int i = 0;i < size;i++) {
-               data[i] += learningRate * dev[i];
+               data[i] -= learningRate * dev[i];
            }
         }
     }
@@ -88,7 +89,9 @@ public class FlowNode {
     }
 
     public void resetDevSize(int size){
-        dev = new double[size];
+        if(dev == null || dev.length != size) {
+            dev = new double[size];
+        }
     }
 
     public String getName() {

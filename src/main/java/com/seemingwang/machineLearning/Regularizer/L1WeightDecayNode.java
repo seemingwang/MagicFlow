@@ -34,14 +34,14 @@ public class L1WeightDecayNode extends FlowNode{
         optimize.setOp(new FlowOp() {
             @Override
             public void forward(FlowNode f) {
-                double res = 0,t;
+                double res = 0;
                 for(FlowNode c: f.getChildren()){
                     int size = c.getSize();
                     for(int i = 0;i < c.data.length;i++)
                         res += c.data[i] >= 0?c.data[i]:-c.data[i];
                 }
                 f.resetDataSize(1);
-                f.data[0] = res * ((L2WeightDecayNode)f).lamda/2;
+                f.data[0] = res * ((L1WeightDecayNode)f).lamda/2;
             }
 
             @Override

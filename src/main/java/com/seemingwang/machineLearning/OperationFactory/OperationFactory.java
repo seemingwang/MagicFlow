@@ -51,10 +51,10 @@ public class OperationFactory {
         }
     }
 
-    static public FlowNode reduceSum(FlowNode a,int index){
+    static public FlowNode reduceSum(FlowNode a,int index, boolean average){
         FlowNode f = new FlowNode();
         try {
-            new FlowOpReduceSum(index).connect(a,f);
+            new FlowOpReduceSum(index,average).connect(a,f);
             return f;
         } catch (Exception e) {
             e.printStackTrace();

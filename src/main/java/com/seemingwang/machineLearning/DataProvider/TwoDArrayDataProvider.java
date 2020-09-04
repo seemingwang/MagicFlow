@@ -7,10 +7,13 @@ public class TwoDArrayDataProvider implements DataProvider{
         shape = new Integer[]{data.length,data[0].length};
     }
 
-    public TwoDArrayDataProvider(double[] data) {
-        this.data = new double[1][data.length];
-        this.data[0] = data;
-        shape = new Integer[]{1,data.length};
+    public TwoDArrayDataProvider(double[] data,int r,int c) {
+        this.data = new double[r][c];
+        for(int i = 0;i < r;i++){
+            for(int j = 0;j < c;j++)
+                this.data[i][j] = data[i *c + j];
+        }
+        shape = new Integer[]{r,c};
     }
 
     double [][]data;

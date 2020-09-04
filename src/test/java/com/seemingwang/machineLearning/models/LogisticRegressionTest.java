@@ -30,7 +30,7 @@ public class LogisticRegressionTest {
         for(int i = 0;i < size;i++){
             double tot = 0;
             for(int j = 0;j < dimension;j++) {
-                in[i][j] = getDouble(10);
+                in[i][j] = getDouble(1);
                 tot += in[i][j] * w.get(j);
             }
             tot += bias;
@@ -44,10 +44,10 @@ public class LogisticRegressionTest {
         for(int i = 0;i < dimension;i++)
             Assert.assertEquals(w.get(i),trainedWeight[i],0.05);
 
-        for(int i = 0;i < in.length;i++){
-            System.out.println("label " + label[i]);
-            System.out.println(lr.Predict(in[i]));
-        }
+//        for(int i = 0;i < in.length;i++){
+//            System.out.println("label " + label[i]);
+//            System.out.println(lr.Predict(in[i]));
+//        }
 //        double t = 0, t1 = 0;
 //        for(int i = 0;i < dimension;i++){
 //            t += w.get(i) * input.get(0).get(i);

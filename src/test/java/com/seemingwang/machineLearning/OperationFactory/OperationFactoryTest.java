@@ -17,7 +17,6 @@ public class OperationFactoryTest {
             for(int j = 0;j < 3;j++){
                 arr[ind] = arr1[ind] = v;
                 ans[ind++] = v + v;
-                ind++;
                 v+=1.0;
 
             }
@@ -28,19 +27,23 @@ public class OperationFactoryTest {
         FlowNode e = OperationFactory.add(fn, fn1);
         e.getOp().forward(e);
         double data[] = e.getData();
-        Assert.assertEquals(data,ans);
+        for(int i = 0;i < ans.length;i++){
+            Assert.assertEquals(data[i],ans[i],1e-8);
+        }
     }
 
     @Test
     public void TestAddBetweenScalaAndMatrix() throws Exception {
-        FlowNode fn = new FlowNodeBuilder().setShape(new Integer[]{2,3}).build(),fn1 = new FlowNodeBuilder().setShape(new Integer[]{}).build();
+        FlowNode fn = new FlowNodeBuilder().setShape(new Integer[]{1,3}).build(),fn1 = new FlowNodeBuilder().setShape(new Integer[]{}).build();
         double [] x = new double[]{1,2,3},y = new double[]{1.7,2.7,3.7};
         fn1.resetDataSize(1);
         fn1.data[0] = 0.7;
         fn.setData(x);
         FlowNode add = OperationFactory.add(fn,fn1);
         add.getOp().forward(add);
-        Assert.assertEquals(add.data,y);
+        for(int i = 0;i < y.length;i++){
+            Assert.assertEquals(add.data[i],y[i],1e-8);
+        }
     }
 
     @Test
@@ -54,7 +57,11 @@ public class OperationFactoryTest {
         double [][] dev = {{1,2,2},{3,1,1}},dev1 = {{14,12},{12,21}},dev2 = {{10,5,5},{14,8,8}};
         f3.dev = DataTransformer.MatrixToArr(dev);
         f3.getOp().backward(f3);
-        Assert.assertEquals(f1.dev,DataTransformer.MatrixToArr(dev1));
-        Assert.assertEquals(f2.dev,DataTransformer.MatrixToArr(dev2));
+        double []d1 = DataTransformer.MatrixToArr(dev1);
+        for(int i = 0;i < d1.length;i++)
+            Assert.assertEquals(f1.dev[i],d1[i],1e-8);
+        double []d2 = DataTransformer.MatrixToArr(dev2);
+        for(int i = 0;i < d2.length;i++)
+            Assert.assertEquals(f2.dev[i],d2[i],1e-8);
     }
 }

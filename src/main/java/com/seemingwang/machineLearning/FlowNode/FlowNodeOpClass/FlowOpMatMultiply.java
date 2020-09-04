@@ -23,8 +23,8 @@ public class FlowOpMatMultiply extends FlowOpDoubleParams {
     @Override
     public void calDev(FlowNode input0, FlowNode input1, FlowNode output) {
         int row = input0.shape[0],col = input1.shape[1],mid = input0.shape[1];
-        input0.resetDataSize(row * mid);
-        input1.resetDataSize(mid * col);
+        input0.resetDevSize(row * mid);
+        input1.resetDevSize(mid * col);
         for(int i = 0;i < row;i++){
             for(int j = 0;j < col;j++){
                 double dev = output.dev[i * col + j];
@@ -41,8 +41,9 @@ public class FlowOpMatMultiply extends FlowOpDoubleParams {
         if(input0.shape == null || input1.shape == null || input0.shape.length != 2 || input1.shape.length != 2){
             throw new Exception("input0 " + input0.getShapeDesc() + " and input1 " + input1.getShapeDesc() + " doesn't form a valid pair for matrix multiplication");
         }
-        output.setShape(new Integer[]{input0.getShape()[0],output.getShape()[1]});
+        output.setShape(new Integer[]{input0.getShape()[0],input1.getShape()[1]});
         output.getChildren().add(input0);
         output.getChildren().add(input1);
+        output.setOp(this);
     }
 }

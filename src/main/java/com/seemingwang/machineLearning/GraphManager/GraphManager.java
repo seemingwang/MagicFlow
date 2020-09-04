@@ -38,6 +38,8 @@ public class GraphManager {
             size *= shape[i];
             pos[i] = 0;
         }
+        pos[pos.length - 1] = -1;
+        f.resetDataSize(size);
         for(int i = 0;i < size;i++){
             pos[shape.length - 1]++;
             int k = shape.length - 1;
@@ -109,6 +111,7 @@ public class GraphManager {
         }
     }
     public void initData() throws Exception {
+        batchSize = new Integer(0);
         exeSeq = Sequential.arrange(true, optimizeNode);
         for(FlowNode c:exeSeq){
             if(c.isTrainable()){

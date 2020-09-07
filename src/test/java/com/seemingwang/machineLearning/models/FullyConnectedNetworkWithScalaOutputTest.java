@@ -81,7 +81,7 @@ public class FullyConnectedNetworkWithScalaOutputTest {
     @Test
     public void TestFullyConnectedNetwork1(){
         Pair<List<List<Double>>,List<Double>> t = makeTestExample();
-        FullyConnectedNetworkWithScalaOutput f = new FullyConnectedNetworkWithScalaOutput(2, new int[]{2, 32, 32,1}, Activator.sigmoid,new GradientDescentOptimizer(0.01));
+        FullyConnectedNetworkWithScalaOutput f = new FullyConnectedNetworkWithScalaOutput(2, new int[]{2, 32, 32,8,8,1}, Activator.sigmoid,new GradientDescentOptimizer(0.001));
         try {
             f.gm.initData();
         } catch (Exception e1) {
@@ -90,7 +90,7 @@ public class FullyConnectedNetworkWithScalaOutputTest {
         double [][] data = ListToMatrix(t.first);
         double []label = ListToArray(t.second);
         f.prepare(data,label,30);
-        Map<FlowNode,DataProvider>m = new HashMap<>();
+        Map<FlowNode,Object>m = new HashMap<>();
         m.put(f.input,new TwoDArrayDataProvider(data));
         m.put(f.label,new TwoDArrayDataProvider(label,label.length,1));
         for(int i = 0;i < 1000000;i++) {

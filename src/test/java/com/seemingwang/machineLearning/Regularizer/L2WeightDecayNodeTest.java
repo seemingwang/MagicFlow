@@ -28,7 +28,7 @@ public class L2WeightDecayNodeTest {
             FlowNode sum = OperationFactory.add(out,decay);
             GraphManager gm = new GraphManager().setOptimizer(new GradientDescentOptimizer(0.01)).setInitializer(new RangeDataInitializer(0,2));
             gm.setOptimizeNode(sum);
-            Map<FlowNode,DataProvider> m = new HashMap<>();
+            Map<FlowNode,Object> m = new HashMap<>();
             m.put(const2,new TwoDArrayDataProvider(new double[][]{{4.0},{2.0},{3.0}}));
             m.put(const3,new TwoDArrayDataProvider(new double[][]{{4.0},{5.0},{8.0}}));
             gm.feed(m);

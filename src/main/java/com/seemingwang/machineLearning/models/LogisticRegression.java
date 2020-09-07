@@ -1,7 +1,6 @@
 package com.seemingwang.machineLearning.models;
 
 import com.seemingwang.machineLearning.DataInitializer.RangeDataInitializer;
-import com.seemingwang.machineLearning.DataProvider.DataProvider;
 import com.seemingwang.machineLearning.DataProvider.TwoDArrayDataProvider;
 import com.seemingwang.machineLearning.FlowNode.FlowNode;
 import com.seemingwang.machineLearning.FlowNode.FlowNodeBuilder;
@@ -56,7 +55,7 @@ public class LogisticRegression {
     public int dimension;
     GraphManager gm;
     public void prepare(double[][] data, double[] dataLabel){
-        Map<FlowNode,DataProvider> p = new HashMap<>();
+        Map<FlowNode,Object> p = new HashMap<>();
         p.put(input,new TwoDArrayDataProvider(data));
         p.put(label,new TwoDArrayDataProvider(dataLabel,dataLabel.length,1));
         try {
@@ -75,7 +74,7 @@ public class LogisticRegression {
     }
 
     public Double Predict(double[] in){
-        Map<FlowNode,DataProvider> p = new HashMap<>();
+        Map<FlowNode,Object> p = new HashMap<>();
         p.put(input,new TwoDArrayDataProvider(in,1,dimension));
         try {
             gm.feed(p);

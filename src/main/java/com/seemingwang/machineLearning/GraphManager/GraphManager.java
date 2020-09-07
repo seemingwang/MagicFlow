@@ -5,6 +5,7 @@ import com.seemingwang.machineLearning.DataProvider.DataProvider;
 import com.seemingwang.machineLearning.FlowNode.FlowNode;
 import com.seemingwang.machineLearning.Optimizer.Optimizer;
 import com.seemingwang.machineLearning.Sequential.Sequential;
+import com.seemingwang.machineLearning.Utils.FetchValue;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -12,39 +13,54 @@ import java.util.Map;
 
 public class GraphManager {
 
-    void feedFlowNodeData(FlowNode f, DataProvider dp) throws Exception {
-        Integer[] shape = dp.getShape();
-        Integer[] nodeShape = f.getShape();
-        if(nodeShape.length == 0){
-            f.resetDevSize(1);
-            f.data[0] = dp.getData(0);
-            return;
-        }
-        if(nodeShape.length != shape.length){
-            throw new Exception("flowNode f's fed data doesn't have the right shape, expected shape is " + f.getShapeDesc());
-        }
-        int size = 1;
-        Integer []pos = new Integer[shape.length];
-        for(int i = 0;i < shape.length;i++){
-            if(f.getShape()[i] == 0){
-                setBatchSize(shape[i]);
-            } else if(!shape[i].equals(f.getShape()[i])){
-                throw new Exception("flowNode f's expected shape is " + f.getShapeDesc() + " which the input's shape doesn't match");
+    void feedFlowNodeData(FlowNode f, Object data) throws Exception {
+        if(data instanceof DataProvider) {
+            DataProvider dp = (DataProvider)data;
+            Integer[] shape = dp.getShape();
+            Integer[] nodeShape = f.getShape();
+            if (nodeShape.length == 0) {
+                f.resetDevSize(1);
+                f.data[0] = dp.getData(0);
+                return;
             }
-            size *= shape[i];
-            pos[i] = 0;
-        }
-        pos[pos.length - 1] = -1;
-        f.resetDataSize(size);
-        for(int i = 0;i < size;i++){
-            pos[shape.length - 1]++;
-            int k = shape.length - 1;
-            while(k > 0 && pos[k] == shape[k]){
-                pos[k] = 0;
-                pos[k-1]++;
-                k--;
+            if (nodeShape.length != shape.length) {
+                throw new Exception("flowNode f's fed data doesn't have the right shape, expected shape is " + f.getShapeDesc());
             }
-            f.data[i] = dp.getData(pos);
+            int size = 1;
+            Integer[] pos = new Integer[shape.length];
+            for (int i = 0; i < shape.length; i++) {
+                if (f.getShape()[i] == 0) {
+                    setBatchSize(shape[i]);
+                } else if (!shape[i].equals(f.getShape()[i])) {
+                    throw new Exception("flowNode f's expected shape is " + f.getShapeDesc() + " which the input's shape doesn't match");
+                }
+                size *= shape[i];
+                pos[i] = 0;
+            }
+            pos[pos.length - 1] = -1;
+            f.resetDataSize(size);
+            for (int i = 0; i < size; i++) {
+                pos[shape.length - 1]++;
+                int k = shape.length - 1;
+                while (k > 0 && pos[k] == shape[k]) {
+                    pos[k] = 0;
+                    pos[k - 1]++;
+                    k--;
+                }
+                f.data[i] = dp.getData(pos);
+            }
+        } else {
+            for(Field x:f.getClass().getDeclaredFields()){
+                if(x.getAnnotation(FetchValue.class)!=null){
+                    x.setAccessible(true);
+                    try {
+                        x.set(f,true);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                }
+            }
         }
 
     }
@@ -100,15 +116,14 @@ public class GraphManager {
 
     public DataInitializer initializer;
     public boolean initDone;
-    public void feed(Map<FlowNode,DataProvider> m) throws Exception {
+    public void feed(Map<FlowNode,Object> m) throws Exception {
         if(!initDone){
             initData();
             initDone = true;
         }
         setBatchSize(0);
         for(FlowNode c:m.keySet()){
-            DataProvider dp = m.get(c);
-            feedFlowNodeData(c,dp);
+            feedFlowNodeData(c,m.get(c));
         }
     }
     public void initData() throws Exception {

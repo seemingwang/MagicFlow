@@ -55,7 +55,7 @@ public class FullyConnectedNetworkWithScalaOutput {
     }
 
     public void train(int step){
-        Map<FlowNode,DataProvider> m = new HashMap<>();
+        Map<FlowNode,Object> m = new HashMap<>();
         for(int i = 0;i < step;i++){
             Pair<DataProvider,DataProvider> p = batch.nextBatch();
             m.put(input,p.first);
@@ -70,7 +70,7 @@ public class FullyConnectedNetworkWithScalaOutput {
     }
 
     public Double predict(double[] in){
-        Map<FlowNode,DataProvider> p = new HashMap<>();
+        Map<FlowNode,Object> p = new HashMap<>();
         p.put(input,new TwoDArrayDataProvider(in,1, dimension));
         try {
             gm.feed(p);

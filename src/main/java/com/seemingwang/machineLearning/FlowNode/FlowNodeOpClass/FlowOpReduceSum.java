@@ -5,11 +5,11 @@ import com.seemingwang.machineLearning.FlowNode.FlowOpSingleParam;
 
 public class FlowOpReduceSum extends FlowOpSingleParam {
     public FlowOpReduceSum(int index,boolean average) {
-        this.index = index;
-        this.average = average;
-    }
+            this.index = index;
+            this.average = average;
+        }
 
-    private int index;
+        private int index;
     boolean average;
     @Override
     public void cal(FlowNode input0, FlowNode output) {

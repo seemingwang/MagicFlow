@@ -3,18 +3,18 @@ package com.seemingwang.machineLearning.Regularizer;
 import com.seemingwang.machineLearning.FlowNode.FlowNode;
 import com.seemingwang.machineLearning.FlowNode.FlowNodeBuilder;
 import com.seemingwang.machineLearning.FlowNode.FlowOp;
-import com.seemingwang.machineLearning.Utils.FetchValue;
+import com.seemingwang.machineLearning.FlowNode.SwitchFlowNode;
 
 import java.util.Arrays;
 import java.util.Random;
 
 public class DropoutNode extends FlowNode {
-    public void setBinarySwitch(Boolean binarySwitch) {
-        this.binarySwitch = binarySwitch;
+
+    public void setIsTraining(SwitchFlowNode isTraining) {
+        this.isTraining = isTraining;
     }
 
-    @FetchValue
-    Boolean binarySwitch;
+    SwitchFlowNode isTraining;
     double keepingRate;
 
     public void setMask(double[] mask) {
@@ -91,9 +91,9 @@ public class DropoutNode extends FlowNode {
                 int inputSize = c.getSize();
                 output.resetDataSize(inputSize);
                 double[] data = output.getData();
-                drop.initMask();
                 double []mask = drop.mask;
-                if(drop.binarySwitch) {
+                if(drop.isTraining.getBinarySwitch()) {
+                    drop.initMask();
                     for (int i = 0; i < inputSize; i++) {
                         data[i] = mask[i % size] * c.data[i];
                     }

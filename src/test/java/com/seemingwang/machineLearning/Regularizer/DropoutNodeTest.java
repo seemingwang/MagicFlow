@@ -2,6 +2,7 @@ package com.seemingwang.machineLearning.Regularizer;
 
 import com.seemingwang.machineLearning.FlowNode.FlowNode;
 import com.seemingwang.machineLearning.FlowNode.FlowNodeBuilder;
+import com.seemingwang.machineLearning.FlowNode.SwitchFlowNode;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -14,7 +15,9 @@ public class DropoutNodeTest {
         c.setData(t);
         FlowNode output = DropoutNode.makeDropoutNode(c,0.8,0);
         DropoutNode d = (DropoutNode) output.getChildren().get(1);
-        d.setBinarySwitch(true);
+        SwitchFlowNode train = new SwitchFlowNode();
+        d.setIsTraining(train);
+        train.setBinarySwitch(true);
         d.setMaskLife(5);
         output.getOp().forward(output);
         d.setMask(new double[] {0.3,0.5,0.7,0.2});
@@ -26,6 +29,11 @@ public class DropoutNodeTest {
         output.getOp().backward(output);
         for(int i = 0;i < 8;i++){
             Assert.assertEquals(output.data[i],c.dev[i],1e-8);
+        }
+        train.setBinarySwitch(false);
+        output.getOp().forward(output);
+        for(int i = 0;i < 8;i++){
+            Assert.assertEquals(output.data[i],t[i],1e-8);
         }
     }
 }

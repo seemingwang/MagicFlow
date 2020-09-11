@@ -1,6 +1,5 @@
 package com.seemingwang.machineLearning.models;
 
-import com.seemingwang.machineLearning.DataProvider.DataProvider;
 import com.seemingwang.machineLearning.DataProvider.TwoDArrayDataProvider;
 import com.seemingwang.machineLearning.FlowNode.FlowNode;
 import com.seemingwang.machineLearning.Optimizer.GradientDescentOptimizer;
@@ -81,7 +80,7 @@ public class FullyConnectedNetworkWithScalaOutputTest {
     @Test
     public void TestFullyConnectedNetwork1(){
         Pair<List<List<Double>>,List<Double>> t = makeTestExample();
-        FullyConnectedNetworkWithScalaOutput f = new FullyConnectedNetworkWithScalaOutput(2, new int[]{2, 32, 32,8,8,1}, Activator.sigmoid,new GradientDescentOptimizer(0.001));
+        FullyConnectedNetworkWithScalaOutput f = new FullyConnectedNetworkWithScalaOutput(2, new int[]{2, 32, 32,16,16,1}, Activator.sigmoid,new GradientDescentOptimizer(0.001));
         try {
             f.gm.initData();
         } catch (Exception e1) {

@@ -96,6 +96,7 @@ public class BatchNormalization{
         });
         FlowNode var = new FlowNodeBuilder().setShape(mean.shape.clone()).build();
         var.setChildren(Arrays.asList(input,mean,isTraining));
+        var.setName("var");
         var.setOp(new FlowOp() {
             @Override
             public void forward(FlowNode f) {
@@ -191,7 +192,7 @@ public class BatchNormalization{
                 for(int i = 0,j = 0;i < size;i++,j++) {
                     if(j == blockSize)
                         j = 0;
-                    double temp = Math.sqrt(var.data[j] + eps);
+                    double temp = 1.0/Math.sqrt(var.data[j] + eps);
                     input.dev[i] += f.dev[i] * temp;
                     mean.dev[j]+= -f.dev[i]*temp;
                     var.dev[j] += -f.dev[i] * f.data[i] * 0.5 /(var.data[j] + eps);
